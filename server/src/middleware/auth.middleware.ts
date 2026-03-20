@@ -41,7 +41,7 @@ export async function authMiddleware(req: Request, _res: Response, next: NextFun
             where: { jti: payload.jti },
         });
 
-        if (!session || session.revoked) {
+        if (!session || session.revokedAt !== null) {
             return next(new UnauthorizedError("Session revoked or invalid"));
         }
 

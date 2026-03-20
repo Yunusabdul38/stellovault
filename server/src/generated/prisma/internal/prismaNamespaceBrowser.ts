@@ -53,10 +53,22 @@ export const AnyNull = runtime.AnyNull
 export const ModelName = {
   User: 'User',
   Wallet: 'Wallet',
+  Session: 'Session',
+  WalletChallenge: 'WalletChallenge',
+  Escrow: 'Escrow',
+  Collateral: 'Collateral',
   Loan: 'Loan',
+  Repayment: 'Repayment',
   Investment: 'Investment',
-  Challenge: 'Challenge',
-  Session: 'Session'
+  OracleEvent: 'OracleEvent',
+  Oracle: 'Oracle',
+  OracleRateLimit: 'OracleRateLimit',
+  OracleConfirmation: 'OracleConfirmation',
+  Dispute: 'Dispute',
+  GovernanceProposal: 'GovernanceProposal',
+  GovernanceVote: 'GovernanceVote',
+  GovernanceAuditLog: 'GovernanceAuditLog',
+  RiskScore: 'RiskScore'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -77,6 +89,7 @@ export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof
 
 export const UserScalarFieldEnum = {
   id: 'id',
+  stellarAddress: 'stellarAddress',
   name: 'name',
   role: 'role',
   createdAt: 'createdAt',
@@ -89,10 +102,10 @@ export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof User
 export const WalletScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
-  stellarAddress: 'stellarAddress',
+  address: 'address',
   isPrimary: 'isPrimary',
   label: 'label',
-  status: 'status',
+  verifiedAt: 'verifiedAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -100,14 +113,73 @@ export const WalletScalarFieldEnum = {
 export type WalletScalarFieldEnum = (typeof WalletScalarFieldEnum)[keyof typeof WalletScalarFieldEnum]
 
 
-export const LoanScalarFieldEnum = {
+export const SessionScalarFieldEnum = {
   id: 'id',
-  borrowerId: 'borrowerId',
+  userId: 'userId',
+  jti: 'jti',
+  revokedAt: 'revokedAt',
+  createdAt: 'createdAt'
+} as const
+
+export type SessionScalarFieldEnum = (typeof SessionScalarFieldEnum)[keyof typeof SessionScalarFieldEnum]
+
+
+export const WalletChallengeScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  walletAddress: 'walletAddress',
+  nonce: 'nonce',
+  purpose: 'purpose',
+  expiresAt: 'expiresAt',
+  consumed: 'consumed',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type WalletChallengeScalarFieldEnum = (typeof WalletChallengeScalarFieldEnum)[keyof typeof WalletChallengeScalarFieldEnum]
+
+
+export const EscrowScalarFieldEnum = {
+  id: 'id',
+  buyerId: 'buyerId',
+  sellerId: 'sellerId',
   amount: 'amount',
   assetCode: 'assetCode',
   status: 'status',
-  collateralAmt: 'collateralAmt',
+  stellarTxHash: 'stellarTxHash',
   escrowAddress: 'escrowAddress',
+  expiresAt: 'expiresAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type EscrowScalarFieldEnum = (typeof EscrowScalarFieldEnum)[keyof typeof EscrowScalarFieldEnum]
+
+
+export const CollateralScalarFieldEnum = {
+  id: 'id',
+  escrowId: 'escrowId',
+  assetCode: 'assetCode',
+  amount: 'amount',
+  metadataHash: 'metadataHash',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CollateralScalarFieldEnum = (typeof CollateralScalarFieldEnum)[keyof typeof CollateralScalarFieldEnum]
+
+
+export const LoanScalarFieldEnum = {
+  id: 'id',
+  borrowerId: 'borrowerId',
+  lenderId: 'lenderId',
+  amount: 'amount',
+  assetCode: 'assetCode',
+  interestRate: 'interestRate',
+  status: 'status',
+  dueDate: 'dueDate',
+  collateralId: 'collateralId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -115,45 +187,139 @@ export const LoanScalarFieldEnum = {
 export type LoanScalarFieldEnum = (typeof LoanScalarFieldEnum)[keyof typeof LoanScalarFieldEnum]
 
 
+export const RepaymentScalarFieldEnum = {
+  id: 'id',
+  loanId: 'loanId',
+  amount: 'amount',
+  paidAt: 'paidAt',
+  createdAt: 'createdAt'
+} as const
+
+export type RepaymentScalarFieldEnum = (typeof RepaymentScalarFieldEnum)[keyof typeof RepaymentScalarFieldEnum]
+
+
 export const InvestmentScalarFieldEnum = {
   id: 'id',
-  investorId: 'investorId',
+  userId: 'userId',
   amount: 'amount',
-  createdAt: 'createdAt'
+  assetCode: 'assetCode',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 } as const
 
 export type InvestmentScalarFieldEnum = (typeof InvestmentScalarFieldEnum)[keyof typeof InvestmentScalarFieldEnum]
 
 
-export const ChallengeScalarFieldEnum = {
+export const OracleEventScalarFieldEnum = {
   id: 'id',
-  userId: 'userId',
-  walletId: 'walletId',
-  nonce: 'nonce',
-  expiresAt: 'expiresAt',
-  consumed: 'consumed',
-  purpose: 'purpose',
+  escrowId: 'escrowId',
+  oracleAddress: 'oracleAddress',
+  confirmationType: 'confirmationType',
+  signature: 'signature',
+  confirmedAt: 'confirmedAt'
+} as const
+
+export type OracleEventScalarFieldEnum = (typeof OracleEventScalarFieldEnum)[keyof typeof OracleEventScalarFieldEnum]
+
+
+export const OracleScalarFieldEnum = {
+  id: 'id',
+  address: 'address',
+  isActive: 'isActive',
+  registeredAt: 'registeredAt',
+  deactivatedAt: 'deactivatedAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type OracleScalarFieldEnum = (typeof OracleScalarFieldEnum)[keyof typeof OracleScalarFieldEnum]
+
+
+export const OracleRateLimitScalarFieldEnum = {
+  id: 'id',
+  oracleId: 'oracleId',
+  minuteWindow: 'minuteWindow',
+  count: 'count',
+  createdAt: 'createdAt'
+} as const
+
+export type OracleRateLimitScalarFieldEnum = (typeof OracleRateLimitScalarFieldEnum)[keyof typeof OracleRateLimitScalarFieldEnum]
+
+
+export const OracleConfirmationScalarFieldEnum = {
+  id: 'id',
+  oracleId: 'oracleId',
+  escrowId: 'escrowId',
+  eventType: 'eventType',
+  signature: 'signature',
+  payload: 'payload',
+  createdAt: 'createdAt'
+} as const
+
+export type OracleConfirmationScalarFieldEnum = (typeof OracleConfirmationScalarFieldEnum)[keyof typeof OracleConfirmationScalarFieldEnum]
+
+
+export const DisputeScalarFieldEnum = {
+  id: 'id',
+  escrowId: 'escrowId',
+  reporterAddress: 'reporterAddress',
+  reason: 'reason',
+  status: 'status',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
-export type ChallengeScalarFieldEnum = (typeof ChallengeScalarFieldEnum)[keyof typeof ChallengeScalarFieldEnum]
+export type DisputeScalarFieldEnum = (typeof DisputeScalarFieldEnum)[keyof typeof DisputeScalarFieldEnum]
 
 
-export const SessionScalarFieldEnum = {
+export const GovernanceProposalScalarFieldEnum = {
   id: 'id',
-  userId: 'userId',
-  walletId: 'walletId',
-  jti: 'jti',
-  ipAddress: 'ipAddress',
-  userAgent: 'userAgent',
-  revoked: 'revoked',
-  revokedAt: 'revokedAt',
-  expiresAt: 'expiresAt',
+  title: 'title',
+  description: 'description',
+  proposerId: 'proposerId',
+  status: 'status',
+  endsAt: 'endsAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type GovernanceProposalScalarFieldEnum = (typeof GovernanceProposalScalarFieldEnum)[keyof typeof GovernanceProposalScalarFieldEnum]
+
+
+export const GovernanceVoteScalarFieldEnum = {
+  id: 'id',
+  proposalId: 'proposalId',
+  voterAddress: 'voterAddress',
+  vote: 'vote',
+  weight: 'weight',
   createdAt: 'createdAt'
 } as const
 
-export type SessionScalarFieldEnum = (typeof SessionScalarFieldEnum)[keyof typeof SessionScalarFieldEnum]
+export type GovernanceVoteScalarFieldEnum = (typeof GovernanceVoteScalarFieldEnum)[keyof typeof GovernanceVoteScalarFieldEnum]
+
+
+export const GovernanceAuditLogScalarFieldEnum = {
+  id: 'id',
+  eventType: 'eventType',
+  proposalId: 'proposalId',
+  voterId: 'voterId',
+  details: 'details',
+  txHash: 'txHash',
+  createdAt: 'createdAt'
+} as const
+
+export type GovernanceAuditLogScalarFieldEnum = (typeof GovernanceAuditLogScalarFieldEnum)[keyof typeof GovernanceAuditLogScalarFieldEnum]
+
+
+export const RiskScoreScalarFieldEnum = {
+  id: 'id',
+  walletAddress: 'walletAddress',
+  score: 'score',
+  grade: 'grade',
+  components: 'components',
+  computedAt: 'computedAt'
+} as const
+
+export type RiskScoreScalarFieldEnum = (typeof RiskScoreScalarFieldEnum)[keyof typeof RiskScoreScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -162,6 +328,13 @@ export const SortOrder = {
 } as const
 
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
+
+
+export const JsonNullValueInput = {
+  JsonNull: JsonNull
+} as const
+
+export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
 
 
 export const QueryMode = {
@@ -178,4 +351,13 @@ export const NullsOrder = {
 } as const
 
 export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
+
+
+export const JsonNullValueFilter = {
+  DbNull: DbNull,
+  JsonNull: JsonNull,
+  AnyNull: AnyNull
+} as const
+
+export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
 

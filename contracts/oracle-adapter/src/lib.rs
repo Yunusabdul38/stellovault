@@ -203,7 +203,7 @@ impl OracleAdapter {
         }
 
         // Validate event type
-        if event_type < 1 || event_type > 5 {
+        if !(1..=5).contains(&event_type) {
             return Err(ContractError::InvalidEventType);
         }
 
@@ -1036,4 +1036,3 @@ mod test {
         assert!(client.check_consensus(&escrow_id, &1u32, &oracle_set));
     }
 }
-

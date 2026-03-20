@@ -28,22 +28,82 @@ export type User = Prisma.UserModel
  */
 export type Wallet = Prisma.WalletModel
 /**
+ * Model Session
+ * 
+ */
+export type Session = Prisma.SessionModel
+/**
+ * Model WalletChallenge
+ * 
+ */
+export type WalletChallenge = Prisma.WalletChallengeModel
+/**
+ * Model Escrow
+ * 
+ */
+export type Escrow = Prisma.EscrowModel
+/**
+ * Model Collateral
+ * 
+ */
+export type Collateral = Prisma.CollateralModel
+/**
  * Model Loan
  * 
  */
 export type Loan = Prisma.LoanModel
+/**
+ * Model Repayment
+ * 
+ */
+export type Repayment = Prisma.RepaymentModel
 /**
  * Model Investment
  * 
  */
 export type Investment = Prisma.InvestmentModel
 /**
- * Model Challenge
+ * Model OracleEvent
  * 
  */
-export type Challenge = Prisma.ChallengeModel
+export type OracleEvent = Prisma.OracleEventModel
 /**
- * Model Session
+ * Model Oracle
  * 
  */
-export type Session = Prisma.SessionModel
+export type Oracle = Prisma.OracleModel
+/**
+ * Model OracleRateLimit
+ * 
+ */
+export type OracleRateLimit = Prisma.OracleRateLimitModel
+/**
+ * Model OracleConfirmation
+ * 
+ */
+export type OracleConfirmation = Prisma.OracleConfirmationModel
+/**
+ * Model Dispute
+ * 
+ */
+export type Dispute = Prisma.DisputeModel
+/**
+ * Model GovernanceProposal
+ * 
+ */
+export type GovernanceProposal = Prisma.GovernanceProposalModel
+/**
+ * Model GovernanceVote
+ * 
+ */
+export type GovernanceVote = Prisma.GovernanceVoteModel
+/**
+ * Model GovernanceAuditLog
+ * 
+ */
+export type GovernanceAuditLog = Prisma.GovernanceAuditLogModel
+/**
+ * Model RiskScore
+ * 
+ */
+export type RiskScore = Prisma.RiskScoreModel

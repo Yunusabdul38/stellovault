@@ -27,10 +27,10 @@ export type AggregateWallet = {
 export type WalletMinAggregateOutputType = {
   id: string | null
   userId: string | null
-  stellarAddress: string | null
+  address: string | null
   isPrimary: boolean | null
   label: string | null
-  status: $Enums.WalletStatus | null
+  verifiedAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -38,10 +38,10 @@ export type WalletMinAggregateOutputType = {
 export type WalletMaxAggregateOutputType = {
   id: string | null
   userId: string | null
-  stellarAddress: string | null
+  address: string | null
   isPrimary: boolean | null
   label: string | null
-  status: $Enums.WalletStatus | null
+  verifiedAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -49,10 +49,10 @@ export type WalletMaxAggregateOutputType = {
 export type WalletCountAggregateOutputType = {
   id: number
   userId: number
-  stellarAddress: number
+  address: number
   isPrimary: number
   label: number
-  status: number
+  verifiedAt: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -62,10 +62,10 @@ export type WalletCountAggregateOutputType = {
 export type WalletMinAggregateInputType = {
   id?: true
   userId?: true
-  stellarAddress?: true
+  address?: true
   isPrimary?: true
   label?: true
-  status?: true
+  verifiedAt?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -73,10 +73,10 @@ export type WalletMinAggregateInputType = {
 export type WalletMaxAggregateInputType = {
   id?: true
   userId?: true
-  stellarAddress?: true
+  address?: true
   isPrimary?: true
   label?: true
-  status?: true
+  verifiedAt?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -84,10 +84,10 @@ export type WalletMaxAggregateInputType = {
 export type WalletCountAggregateInputType = {
   id?: true
   userId?: true
-  stellarAddress?: true
+  address?: true
   isPrimary?: true
   label?: true
-  status?: true
+  verifiedAt?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -168,10 +168,10 @@ export type WalletGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalA
 export type WalletGroupByOutputType = {
   id: string
   userId: string
-  stellarAddress: string
+  address: string
   isPrimary: boolean
   label: string | null
-  status: $Enums.WalletStatus
+  verifiedAt: Date | null
   createdAt: Date
   updatedAt: Date
   _count: WalletCountAggregateOutputType | null
@@ -200,55 +200,49 @@ export type WalletWhereInput = {
   NOT?: Prisma.WalletWhereInput | Prisma.WalletWhereInput[]
   id?: Prisma.StringFilter<"Wallet"> | string
   userId?: Prisma.StringFilter<"Wallet"> | string
-  stellarAddress?: Prisma.StringFilter<"Wallet"> | string
+  address?: Prisma.StringFilter<"Wallet"> | string
   isPrimary?: Prisma.BoolFilter<"Wallet"> | boolean
   label?: Prisma.StringNullableFilter<"Wallet"> | string | null
-  status?: Prisma.EnumWalletStatusFilter<"Wallet"> | $Enums.WalletStatus
+  verifiedAt?: Prisma.DateTimeNullableFilter<"Wallet"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Wallet"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Wallet"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
-  sessions?: Prisma.SessionListRelationFilter
-  challenges?: Prisma.ChallengeListRelationFilter
 }
 
 export type WalletOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
-  stellarAddress?: Prisma.SortOrder
+  address?: Prisma.SortOrder
   isPrimary?: Prisma.SortOrder
   label?: Prisma.SortOrderInput | Prisma.SortOrder
-  status?: Prisma.SortOrder
+  verifiedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   user?: Prisma.UserOrderByWithRelationInput
-  sessions?: Prisma.SessionOrderByRelationAggregateInput
-  challenges?: Prisma.ChallengeOrderByRelationAggregateInput
 }
 
 export type WalletWhereUniqueInput = Prisma.AtLeast<{
   id?: string
-  stellarAddress?: string
+  address?: string
   AND?: Prisma.WalletWhereInput | Prisma.WalletWhereInput[]
   OR?: Prisma.WalletWhereInput[]
   NOT?: Prisma.WalletWhereInput | Prisma.WalletWhereInput[]
   userId?: Prisma.StringFilter<"Wallet"> | string
   isPrimary?: Prisma.BoolFilter<"Wallet"> | boolean
   label?: Prisma.StringNullableFilter<"Wallet"> | string | null
-  status?: Prisma.EnumWalletStatusFilter<"Wallet"> | $Enums.WalletStatus
+  verifiedAt?: Prisma.DateTimeNullableFilter<"Wallet"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Wallet"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Wallet"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
-  sessions?: Prisma.SessionListRelationFilter
-  challenges?: Prisma.ChallengeListRelationFilter
-}, "id" | "stellarAddress">
+}, "id" | "address">
 
 export type WalletOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
-  stellarAddress?: Prisma.SortOrder
+  address?: Prisma.SortOrder
   isPrimary?: Prisma.SortOrder
   label?: Prisma.SortOrderInput | Prisma.SortOrder
-  status?: Prisma.SortOrder
+  verifiedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.WalletCountOrderByAggregateInput
@@ -262,83 +256,75 @@ export type WalletScalarWhereWithAggregatesInput = {
   NOT?: Prisma.WalletScalarWhereWithAggregatesInput | Prisma.WalletScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"Wallet"> | string
   userId?: Prisma.StringWithAggregatesFilter<"Wallet"> | string
-  stellarAddress?: Prisma.StringWithAggregatesFilter<"Wallet"> | string
+  address?: Prisma.StringWithAggregatesFilter<"Wallet"> | string
   isPrimary?: Prisma.BoolWithAggregatesFilter<"Wallet"> | boolean
   label?: Prisma.StringNullableWithAggregatesFilter<"Wallet"> | string | null
-  status?: Prisma.EnumWalletStatusWithAggregatesFilter<"Wallet"> | $Enums.WalletStatus
+  verifiedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Wallet"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Wallet"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Wallet"> | Date | string
 }
 
 export type WalletCreateInput = {
   id?: string
-  stellarAddress: string
+  address: string
   isPrimary?: boolean
   label?: string | null
-  status?: $Enums.WalletStatus
+  verifiedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutWalletsInput
-  sessions?: Prisma.SessionCreateNestedManyWithoutWalletInput
-  challenges?: Prisma.ChallengeCreateNestedManyWithoutWalletInput
 }
 
 export type WalletUncheckedCreateInput = {
   id?: string
   userId: string
-  stellarAddress: string
+  address: string
   isPrimary?: boolean
   label?: string | null
-  status?: $Enums.WalletStatus
+  verifiedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutWalletInput
-  challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutWalletInput
 }
 
 export type WalletUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  stellarAddress?: Prisma.StringFieldUpdateOperationsInput | string
+  address?: Prisma.StringFieldUpdateOperationsInput | string
   isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  status?: Prisma.EnumWalletStatusFieldUpdateOperationsInput | $Enums.WalletStatus
+  verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutWalletsNestedInput
-  sessions?: Prisma.SessionUpdateManyWithoutWalletNestedInput
-  challenges?: Prisma.ChallengeUpdateManyWithoutWalletNestedInput
 }
 
 export type WalletUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
-  stellarAddress?: Prisma.StringFieldUpdateOperationsInput | string
+  address?: Prisma.StringFieldUpdateOperationsInput | string
   isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  status?: Prisma.EnumWalletStatusFieldUpdateOperationsInput | $Enums.WalletStatus
+  verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  sessions?: Prisma.SessionUncheckedUpdateManyWithoutWalletNestedInput
-  challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutWalletNestedInput
 }
 
 export type WalletCreateManyInput = {
   id?: string
   userId: string
-  stellarAddress: string
+  address: string
   isPrimary?: boolean
   label?: string | null
-  status?: $Enums.WalletStatus
+  verifiedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
 
 export type WalletUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  stellarAddress?: Prisma.StringFieldUpdateOperationsInput | string
+  address?: Prisma.StringFieldUpdateOperationsInput | string
   isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  status?: Prisma.EnumWalletStatusFieldUpdateOperationsInput | $Enums.WalletStatus
+  verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -346,10 +332,10 @@ export type WalletUpdateManyMutationInput = {
 export type WalletUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
-  stellarAddress?: Prisma.StringFieldUpdateOperationsInput | string
+  address?: Prisma.StringFieldUpdateOperationsInput | string
   isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  status?: Prisma.EnumWalletStatusFieldUpdateOperationsInput | $Enums.WalletStatus
+  verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -367,10 +353,10 @@ export type WalletOrderByRelationAggregateInput = {
 export type WalletCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
-  stellarAddress?: Prisma.SortOrder
+  address?: Prisma.SortOrder
   isPrimary?: Prisma.SortOrder
   label?: Prisma.SortOrder
-  status?: Prisma.SortOrder
+  verifiedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -378,10 +364,10 @@ export type WalletCountOrderByAggregateInput = {
 export type WalletMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
-  stellarAddress?: Prisma.SortOrder
+  address?: Prisma.SortOrder
   isPrimary?: Prisma.SortOrder
   label?: Prisma.SortOrder
-  status?: Prisma.SortOrder
+  verifiedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -389,17 +375,12 @@ export type WalletMaxOrderByAggregateInput = {
 export type WalletMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
-  stellarAddress?: Prisma.SortOrder
+  address?: Prisma.SortOrder
   isPrimary?: Prisma.SortOrder
   label?: Prisma.SortOrder
-  status?: Prisma.SortOrder
+  verifiedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-}
-
-export type WalletScalarRelationFilter = {
-  is?: Prisma.WalletWhereInput
-  isNot?: Prisma.WalletWhereInput
 }
 
 export type WalletCreateNestedManyWithoutUserInput = {
@@ -448,60 +429,28 @@ export type BoolFieldUpdateOperationsInput = {
   set?: boolean
 }
 
-export type EnumWalletStatusFieldUpdateOperationsInput = {
-  set?: $Enums.WalletStatus
-}
-
-export type WalletCreateNestedOneWithoutChallengesInput = {
-  create?: Prisma.XOR<Prisma.WalletCreateWithoutChallengesInput, Prisma.WalletUncheckedCreateWithoutChallengesInput>
-  connectOrCreate?: Prisma.WalletCreateOrConnectWithoutChallengesInput
-  connect?: Prisma.WalletWhereUniqueInput
-}
-
-export type WalletUpdateOneRequiredWithoutChallengesNestedInput = {
-  create?: Prisma.XOR<Prisma.WalletCreateWithoutChallengesInput, Prisma.WalletUncheckedCreateWithoutChallengesInput>
-  connectOrCreate?: Prisma.WalletCreateOrConnectWithoutChallengesInput
-  upsert?: Prisma.WalletUpsertWithoutChallengesInput
-  connect?: Prisma.WalletWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.WalletUpdateToOneWithWhereWithoutChallengesInput, Prisma.WalletUpdateWithoutChallengesInput>, Prisma.WalletUncheckedUpdateWithoutChallengesInput>
-}
-
-export type WalletCreateNestedOneWithoutSessionsInput = {
-  create?: Prisma.XOR<Prisma.WalletCreateWithoutSessionsInput, Prisma.WalletUncheckedCreateWithoutSessionsInput>
-  connectOrCreate?: Prisma.WalletCreateOrConnectWithoutSessionsInput
-  connect?: Prisma.WalletWhereUniqueInput
-}
-
-export type WalletUpdateOneRequiredWithoutSessionsNestedInput = {
-  create?: Prisma.XOR<Prisma.WalletCreateWithoutSessionsInput, Prisma.WalletUncheckedCreateWithoutSessionsInput>
-  connectOrCreate?: Prisma.WalletCreateOrConnectWithoutSessionsInput
-  upsert?: Prisma.WalletUpsertWithoutSessionsInput
-  connect?: Prisma.WalletWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.WalletUpdateToOneWithWhereWithoutSessionsInput, Prisma.WalletUpdateWithoutSessionsInput>, Prisma.WalletUncheckedUpdateWithoutSessionsInput>
+export type NullableDateTimeFieldUpdateOperationsInput = {
+  set?: Date | string | null
 }
 
 export type WalletCreateWithoutUserInput = {
   id?: string
-  stellarAddress: string
+  address: string
   isPrimary?: boolean
   label?: string | null
-  status?: $Enums.WalletStatus
+  verifiedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  sessions?: Prisma.SessionCreateNestedManyWithoutWalletInput
-  challenges?: Prisma.ChallengeCreateNestedManyWithoutWalletInput
 }
 
 export type WalletUncheckedCreateWithoutUserInput = {
   id?: string
-  stellarAddress: string
+  address: string
   isPrimary?: boolean
   label?: string | null
-  status?: $Enums.WalletStatus
+  verifiedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutWalletInput
-  challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutWalletInput
 }
 
 export type WalletCreateOrConnectWithoutUserInput = {
@@ -536,248 +485,75 @@ export type WalletScalarWhereInput = {
   NOT?: Prisma.WalletScalarWhereInput | Prisma.WalletScalarWhereInput[]
   id?: Prisma.StringFilter<"Wallet"> | string
   userId?: Prisma.StringFilter<"Wallet"> | string
-  stellarAddress?: Prisma.StringFilter<"Wallet"> | string
+  address?: Prisma.StringFilter<"Wallet"> | string
   isPrimary?: Prisma.BoolFilter<"Wallet"> | boolean
   label?: Prisma.StringNullableFilter<"Wallet"> | string | null
-  status?: Prisma.EnumWalletStatusFilter<"Wallet"> | $Enums.WalletStatus
+  verifiedAt?: Prisma.DateTimeNullableFilter<"Wallet"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Wallet"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Wallet"> | Date | string
 }
 
-export type WalletCreateWithoutChallengesInput = {
-  id?: string
-  stellarAddress: string
-  isPrimary?: boolean
-  label?: string | null
-  status?: $Enums.WalletStatus
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  user: Prisma.UserCreateNestedOneWithoutWalletsInput
-  sessions?: Prisma.SessionCreateNestedManyWithoutWalletInput
-}
-
-export type WalletUncheckedCreateWithoutChallengesInput = {
-  id?: string
-  userId: string
-  stellarAddress: string
-  isPrimary?: boolean
-  label?: string | null
-  status?: $Enums.WalletStatus
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutWalletInput
-}
-
-export type WalletCreateOrConnectWithoutChallengesInput = {
-  where: Prisma.WalletWhereUniqueInput
-  create: Prisma.XOR<Prisma.WalletCreateWithoutChallengesInput, Prisma.WalletUncheckedCreateWithoutChallengesInput>
-}
-
-export type WalletUpsertWithoutChallengesInput = {
-  update: Prisma.XOR<Prisma.WalletUpdateWithoutChallengesInput, Prisma.WalletUncheckedUpdateWithoutChallengesInput>
-  create: Prisma.XOR<Prisma.WalletCreateWithoutChallengesInput, Prisma.WalletUncheckedCreateWithoutChallengesInput>
-  where?: Prisma.WalletWhereInput
-}
-
-export type WalletUpdateToOneWithWhereWithoutChallengesInput = {
-  where?: Prisma.WalletWhereInput
-  data: Prisma.XOR<Prisma.WalletUpdateWithoutChallengesInput, Prisma.WalletUncheckedUpdateWithoutChallengesInput>
-}
-
-export type WalletUpdateWithoutChallengesInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  stellarAddress?: Prisma.StringFieldUpdateOperationsInput | string
-  isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  status?: Prisma.EnumWalletStatusFieldUpdateOperationsInput | $Enums.WalletStatus
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  user?: Prisma.UserUpdateOneRequiredWithoutWalletsNestedInput
-  sessions?: Prisma.SessionUpdateManyWithoutWalletNestedInput
-}
-
-export type WalletUncheckedUpdateWithoutChallengesInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  userId?: Prisma.StringFieldUpdateOperationsInput | string
-  stellarAddress?: Prisma.StringFieldUpdateOperationsInput | string
-  isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  status?: Prisma.EnumWalletStatusFieldUpdateOperationsInput | $Enums.WalletStatus
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  sessions?: Prisma.SessionUncheckedUpdateManyWithoutWalletNestedInput
-}
-
-export type WalletCreateWithoutSessionsInput = {
-  id?: string
-  stellarAddress: string
-  isPrimary?: boolean
-  label?: string | null
-  status?: $Enums.WalletStatus
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  user: Prisma.UserCreateNestedOneWithoutWalletsInput
-  challenges?: Prisma.ChallengeCreateNestedManyWithoutWalletInput
-}
-
-export type WalletUncheckedCreateWithoutSessionsInput = {
-  id?: string
-  userId: string
-  stellarAddress: string
-  isPrimary?: boolean
-  label?: string | null
-  status?: $Enums.WalletStatus
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutWalletInput
-}
-
-export type WalletCreateOrConnectWithoutSessionsInput = {
-  where: Prisma.WalletWhereUniqueInput
-  create: Prisma.XOR<Prisma.WalletCreateWithoutSessionsInput, Prisma.WalletUncheckedCreateWithoutSessionsInput>
-}
-
-export type WalletUpsertWithoutSessionsInput = {
-  update: Prisma.XOR<Prisma.WalletUpdateWithoutSessionsInput, Prisma.WalletUncheckedUpdateWithoutSessionsInput>
-  create: Prisma.XOR<Prisma.WalletCreateWithoutSessionsInput, Prisma.WalletUncheckedCreateWithoutSessionsInput>
-  where?: Prisma.WalletWhereInput
-}
-
-export type WalletUpdateToOneWithWhereWithoutSessionsInput = {
-  where?: Prisma.WalletWhereInput
-  data: Prisma.XOR<Prisma.WalletUpdateWithoutSessionsInput, Prisma.WalletUncheckedUpdateWithoutSessionsInput>
-}
-
-export type WalletUpdateWithoutSessionsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  stellarAddress?: Prisma.StringFieldUpdateOperationsInput | string
-  isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  status?: Prisma.EnumWalletStatusFieldUpdateOperationsInput | $Enums.WalletStatus
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  user?: Prisma.UserUpdateOneRequiredWithoutWalletsNestedInput
-  challenges?: Prisma.ChallengeUpdateManyWithoutWalletNestedInput
-}
-
-export type WalletUncheckedUpdateWithoutSessionsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  userId?: Prisma.StringFieldUpdateOperationsInput | string
-  stellarAddress?: Prisma.StringFieldUpdateOperationsInput | string
-  isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  status?: Prisma.EnumWalletStatusFieldUpdateOperationsInput | $Enums.WalletStatus
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutWalletNestedInput
-}
-
 export type WalletCreateManyUserInput = {
   id?: string
-  stellarAddress: string
+  address: string
   isPrimary?: boolean
   label?: string | null
-  status?: $Enums.WalletStatus
+  verifiedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
 
 export type WalletUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  stellarAddress?: Prisma.StringFieldUpdateOperationsInput | string
+  address?: Prisma.StringFieldUpdateOperationsInput | string
   isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  status?: Prisma.EnumWalletStatusFieldUpdateOperationsInput | $Enums.WalletStatus
+  verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  sessions?: Prisma.SessionUpdateManyWithoutWalletNestedInput
-  challenges?: Prisma.ChallengeUpdateManyWithoutWalletNestedInput
 }
 
 export type WalletUncheckedUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  stellarAddress?: Prisma.StringFieldUpdateOperationsInput | string
+  address?: Prisma.StringFieldUpdateOperationsInput | string
   isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  status?: Prisma.EnumWalletStatusFieldUpdateOperationsInput | $Enums.WalletStatus
+  verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  sessions?: Prisma.SessionUncheckedUpdateManyWithoutWalletNestedInput
-  challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutWalletNestedInput
 }
 
 export type WalletUncheckedUpdateManyWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  stellarAddress?: Prisma.StringFieldUpdateOperationsInput | string
+  address?: Prisma.StringFieldUpdateOperationsInput | string
   isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  status?: Prisma.EnumWalletStatusFieldUpdateOperationsInput | $Enums.WalletStatus
+  verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-
-/**
- * Count Type WalletCountOutputType
- */
-
-export type WalletCountOutputType = {
-  sessions: number
-  challenges: number
-}
-
-export type WalletCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  sessions?: boolean | WalletCountOutputTypeCountSessionsArgs
-  challenges?: boolean | WalletCountOutputTypeCountChallengesArgs
-}
-
-/**
- * WalletCountOutputType without action
- */
-export type WalletCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the WalletCountOutputType
-   */
-  select?: Prisma.WalletCountOutputTypeSelect<ExtArgs> | null
-}
-
-/**
- * WalletCountOutputType without action
- */
-export type WalletCountOutputTypeCountSessionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.SessionWhereInput
-}
-
-/**
- * WalletCountOutputType without action
- */
-export type WalletCountOutputTypeCountChallengesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.ChallengeWhereInput
-}
 
 
 export type WalletSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   userId?: boolean
-  stellarAddress?: boolean
+  address?: boolean
   isPrimary?: boolean
   label?: boolean
-  status?: boolean
+  verifiedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
-  sessions?: boolean | Prisma.Wallet$sessionsArgs<ExtArgs>
-  challenges?: boolean | Prisma.Wallet$challengesArgs<ExtArgs>
-  _count?: boolean | Prisma.WalletCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["wallet"]>
 
 export type WalletSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   userId?: boolean
-  stellarAddress?: boolean
+  address?: boolean
   isPrimary?: boolean
   label?: boolean
-  status?: boolean
+  verifiedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -786,10 +562,10 @@ export type WalletSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extens
 export type WalletSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   userId?: boolean
-  stellarAddress?: boolean
+  address?: boolean
   isPrimary?: boolean
   label?: boolean
-  status?: boolean
+  verifiedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -798,20 +574,17 @@ export type WalletSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extens
 export type WalletSelectScalar = {
   id?: boolean
   userId?: boolean
-  stellarAddress?: boolean
+  address?: boolean
   isPrimary?: boolean
   label?: boolean
-  status?: boolean
+  verifiedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type WalletOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "stellarAddress" | "isPrimary" | "label" | "status" | "createdAt" | "updatedAt", ExtArgs["result"]["wallet"]>
+export type WalletOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "address" | "isPrimary" | "label" | "verifiedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["wallet"]>
 export type WalletInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
-  sessions?: boolean | Prisma.Wallet$sessionsArgs<ExtArgs>
-  challenges?: boolean | Prisma.Wallet$challengesArgs<ExtArgs>
-  _count?: boolean | Prisma.WalletCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type WalletIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -824,16 +597,14 @@ export type $WalletPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
   name: "Wallet"
   objects: {
     user: Prisma.$UserPayload<ExtArgs>
-    sessions: Prisma.$SessionPayload<ExtArgs>[]
-    challenges: Prisma.$ChallengePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     userId: string
-    stellarAddress: string
+    address: string
     isPrimary: boolean
     label: string | null
-    status: $Enums.WalletStatus
+    verifiedAt: Date | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["wallet"]>
@@ -1231,8 +1002,6 @@ readonly fields: WalletFieldRefs;
 export interface Prisma__WalletClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   user<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-  sessions<T extends Prisma.Wallet$sessionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Wallet$sessionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  challenges<T extends Prisma.Wallet$challengesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Wallet$challengesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ChallengePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1264,10 +1033,10 @@ export interface Prisma__WalletClient<T, Null = never, ExtArgs extends runtime.T
 export interface WalletFieldRefs {
   readonly id: Prisma.FieldRef<"Wallet", 'String'>
   readonly userId: Prisma.FieldRef<"Wallet", 'String'>
-  readonly stellarAddress: Prisma.FieldRef<"Wallet", 'String'>
+  readonly address: Prisma.FieldRef<"Wallet", 'String'>
   readonly isPrimary: Prisma.FieldRef<"Wallet", 'Boolean'>
   readonly label: Prisma.FieldRef<"Wallet", 'String'>
-  readonly status: Prisma.FieldRef<"Wallet", 'WalletStatus'>
+  readonly verifiedAt: Prisma.FieldRef<"Wallet", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"Wallet", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Wallet", 'DateTime'>
 }
@@ -1663,54 +1432,6 @@ export type WalletDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Intern
    * Limit how many Wallets to delete.
    */
   limit?: number
-}
-
-/**
- * Wallet.sessions
- */
-export type Wallet$sessionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the Session
-   */
-  select?: Prisma.SessionSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the Session
-   */
-  omit?: Prisma.SessionOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.SessionInclude<ExtArgs> | null
-  where?: Prisma.SessionWhereInput
-  orderBy?: Prisma.SessionOrderByWithRelationInput | Prisma.SessionOrderByWithRelationInput[]
-  cursor?: Prisma.SessionWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.SessionScalarFieldEnum | Prisma.SessionScalarFieldEnum[]
-}
-
-/**
- * Wallet.challenges
- */
-export type Wallet$challengesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the Challenge
-   */
-  select?: Prisma.ChallengeSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the Challenge
-   */
-  omit?: Prisma.ChallengeOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.ChallengeInclude<ExtArgs> | null
-  where?: Prisma.ChallengeWhereInput
-  orderBy?: Prisma.ChallengeOrderByWithRelationInput | Prisma.ChallengeOrderByWithRelationInput[]
-  cursor?: Prisma.ChallengeWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.ChallengeScalarFieldEnum | Prisma.ChallengeScalarFieldEnum[]
 }
 
 /**

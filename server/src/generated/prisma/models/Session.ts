@@ -27,39 +27,24 @@ export type AggregateSession = {
 export type SessionMinAggregateOutputType = {
   id: string | null
   userId: string | null
-  walletId: string | null
   jti: string | null
-  ipAddress: string | null
-  userAgent: string | null
-  revoked: boolean | null
   revokedAt: Date | null
-  expiresAt: Date | null
   createdAt: Date | null
 }
 
 export type SessionMaxAggregateOutputType = {
   id: string | null
   userId: string | null
-  walletId: string | null
   jti: string | null
-  ipAddress: string | null
-  userAgent: string | null
-  revoked: boolean | null
   revokedAt: Date | null
-  expiresAt: Date | null
   createdAt: Date | null
 }
 
 export type SessionCountAggregateOutputType = {
   id: number
   userId: number
-  walletId: number
   jti: number
-  ipAddress: number
-  userAgent: number
-  revoked: number
   revokedAt: number
-  expiresAt: number
   createdAt: number
   _all: number
 }
@@ -68,39 +53,24 @@ export type SessionCountAggregateOutputType = {
 export type SessionMinAggregateInputType = {
   id?: true
   userId?: true
-  walletId?: true
   jti?: true
-  ipAddress?: true
-  userAgent?: true
-  revoked?: true
   revokedAt?: true
-  expiresAt?: true
   createdAt?: true
 }
 
 export type SessionMaxAggregateInputType = {
   id?: true
   userId?: true
-  walletId?: true
   jti?: true
-  ipAddress?: true
-  userAgent?: true
-  revoked?: true
   revokedAt?: true
-  expiresAt?: true
   createdAt?: true
 }
 
 export type SessionCountAggregateInputType = {
   id?: true
   userId?: true
-  walletId?: true
   jti?: true
-  ipAddress?: true
-  userAgent?: true
-  revoked?: true
   revokedAt?: true
-  expiresAt?: true
   createdAt?: true
   _all?: true
 }
@@ -180,13 +150,8 @@ export type SessionGroupByArgs<ExtArgs extends runtime.Types.Extensions.Internal
 export type SessionGroupByOutputType = {
   id: string
   userId: string
-  walletId: string
   jti: string
-  ipAddress: string | null
-  userAgent: string | null
-  revoked: boolean
   revokedAt: Date | null
-  expiresAt: Date
   createdAt: Date
   _count: SessionCountAggregateOutputType | null
   _min: SessionMinAggregateOutputType | null
@@ -214,31 +179,19 @@ export type SessionWhereInput = {
   NOT?: Prisma.SessionWhereInput | Prisma.SessionWhereInput[]
   id?: Prisma.StringFilter<"Session"> | string
   userId?: Prisma.StringFilter<"Session"> | string
-  walletId?: Prisma.StringFilter<"Session"> | string
   jti?: Prisma.StringFilter<"Session"> | string
-  ipAddress?: Prisma.StringNullableFilter<"Session"> | string | null
-  userAgent?: Prisma.StringNullableFilter<"Session"> | string | null
-  revoked?: Prisma.BoolFilter<"Session"> | boolean
   revokedAt?: Prisma.DateTimeNullableFilter<"Session"> | Date | string | null
-  expiresAt?: Prisma.DateTimeFilter<"Session"> | Date | string
   createdAt?: Prisma.DateTimeFilter<"Session"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
-  wallet?: Prisma.XOR<Prisma.WalletScalarRelationFilter, Prisma.WalletWhereInput>
 }
 
 export type SessionOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
-  walletId?: Prisma.SortOrder
   jti?: Prisma.SortOrder
-  ipAddress?: Prisma.SortOrderInput | Prisma.SortOrder
-  userAgent?: Prisma.SortOrderInput | Prisma.SortOrder
-  revoked?: Prisma.SortOrder
   revokedAt?: Prisma.SortOrderInput | Prisma.SortOrder
-  expiresAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   user?: Prisma.UserOrderByWithRelationInput
-  wallet?: Prisma.WalletOrderByWithRelationInput
 }
 
 export type SessionWhereUniqueInput = Prisma.AtLeast<{
@@ -248,27 +201,16 @@ export type SessionWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.SessionWhereInput[]
   NOT?: Prisma.SessionWhereInput | Prisma.SessionWhereInput[]
   userId?: Prisma.StringFilter<"Session"> | string
-  walletId?: Prisma.StringFilter<"Session"> | string
-  ipAddress?: Prisma.StringNullableFilter<"Session"> | string | null
-  userAgent?: Prisma.StringNullableFilter<"Session"> | string | null
-  revoked?: Prisma.BoolFilter<"Session"> | boolean
   revokedAt?: Prisma.DateTimeNullableFilter<"Session"> | Date | string | null
-  expiresAt?: Prisma.DateTimeFilter<"Session"> | Date | string
   createdAt?: Prisma.DateTimeFilter<"Session"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
-  wallet?: Prisma.XOR<Prisma.WalletScalarRelationFilter, Prisma.WalletWhereInput>
 }, "id" | "jti">
 
 export type SessionOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
-  walletId?: Prisma.SortOrder
   jti?: Prisma.SortOrder
-  ipAddress?: Prisma.SortOrderInput | Prisma.SortOrder
-  userAgent?: Prisma.SortOrderInput | Prisma.SortOrder
-  revoked?: Prisma.SortOrder
   revokedAt?: Prisma.SortOrderInput | Prisma.SortOrder
-  expiresAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.SessionCountOrderByAggregateInput
   _max?: Prisma.SessionMaxOrderByAggregateInput
@@ -281,102 +223,63 @@ export type SessionScalarWhereWithAggregatesInput = {
   NOT?: Prisma.SessionScalarWhereWithAggregatesInput | Prisma.SessionScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"Session"> | string
   userId?: Prisma.StringWithAggregatesFilter<"Session"> | string
-  walletId?: Prisma.StringWithAggregatesFilter<"Session"> | string
   jti?: Prisma.StringWithAggregatesFilter<"Session"> | string
-  ipAddress?: Prisma.StringNullableWithAggregatesFilter<"Session"> | string | null
-  userAgent?: Prisma.StringNullableWithAggregatesFilter<"Session"> | string | null
-  revoked?: Prisma.BoolWithAggregatesFilter<"Session"> | boolean
   revokedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Session"> | Date | string | null
-  expiresAt?: Prisma.DateTimeWithAggregatesFilter<"Session"> | Date | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Session"> | Date | string
 }
 
 export type SessionCreateInput = {
   id?: string
   jti: string
-  ipAddress?: string | null
-  userAgent?: string | null
-  revoked?: boolean
   revokedAt?: Date | string | null
-  expiresAt: Date | string
   createdAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutSessionsInput
-  wallet: Prisma.WalletCreateNestedOneWithoutSessionsInput
 }
 
 export type SessionUncheckedCreateInput = {
   id?: string
   userId: string
-  walletId: string
   jti: string
-  ipAddress?: string | null
-  userAgent?: string | null
-  revoked?: boolean
   revokedAt?: Date | string | null
-  expiresAt: Date | string
   createdAt?: Date | string
 }
 
 export type SessionUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   jti?: Prisma.StringFieldUpdateOperationsInput | string
-  ipAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  userAgent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  revoked?: Prisma.BoolFieldUpdateOperationsInput | boolean
   revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutSessionsNestedInput
-  wallet?: Prisma.WalletUpdateOneRequiredWithoutSessionsNestedInput
 }
 
 export type SessionUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
-  walletId?: Prisma.StringFieldUpdateOperationsInput | string
   jti?: Prisma.StringFieldUpdateOperationsInput | string
-  ipAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  userAgent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  revoked?: Prisma.BoolFieldUpdateOperationsInput | boolean
   revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SessionCreateManyInput = {
   id?: string
   userId: string
-  walletId: string
   jti: string
-  ipAddress?: string | null
-  userAgent?: string | null
-  revoked?: boolean
   revokedAt?: Date | string | null
-  expiresAt: Date | string
   createdAt?: Date | string
 }
 
 export type SessionUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   jti?: Prisma.StringFieldUpdateOperationsInput | string
-  ipAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  userAgent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  revoked?: Prisma.BoolFieldUpdateOperationsInput | boolean
   revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SessionUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
-  walletId?: Prisma.StringFieldUpdateOperationsInput | string
   jti?: Prisma.StringFieldUpdateOperationsInput | string
-  ipAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  userAgent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  revoked?: Prisma.BoolFieldUpdateOperationsInput | boolean
   revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -393,39 +296,24 @@ export type SessionOrderByRelationAggregateInput = {
 export type SessionCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
-  walletId?: Prisma.SortOrder
   jti?: Prisma.SortOrder
-  ipAddress?: Prisma.SortOrder
-  userAgent?: Prisma.SortOrder
-  revoked?: Prisma.SortOrder
   revokedAt?: Prisma.SortOrder
-  expiresAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
 export type SessionMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
-  walletId?: Prisma.SortOrder
   jti?: Prisma.SortOrder
-  ipAddress?: Prisma.SortOrder
-  userAgent?: Prisma.SortOrder
-  revoked?: Prisma.SortOrder
   revokedAt?: Prisma.SortOrder
-  expiresAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
 export type SessionMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
-  walletId?: Prisma.SortOrder
   jti?: Prisma.SortOrder
-  ipAddress?: Prisma.SortOrder
-  userAgent?: Prisma.SortOrder
-  revoked?: Prisma.SortOrder
   revokedAt?: Prisma.SortOrder
-  expiresAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -471,73 +359,17 @@ export type SessionUncheckedUpdateManyWithoutUserNestedInput = {
   deleteMany?: Prisma.SessionScalarWhereInput | Prisma.SessionScalarWhereInput[]
 }
 
-export type SessionCreateNestedManyWithoutWalletInput = {
-  create?: Prisma.XOR<Prisma.SessionCreateWithoutWalletInput, Prisma.SessionUncheckedCreateWithoutWalletInput> | Prisma.SessionCreateWithoutWalletInput[] | Prisma.SessionUncheckedCreateWithoutWalletInput[]
-  connectOrCreate?: Prisma.SessionCreateOrConnectWithoutWalletInput | Prisma.SessionCreateOrConnectWithoutWalletInput[]
-  createMany?: Prisma.SessionCreateManyWalletInputEnvelope
-  connect?: Prisma.SessionWhereUniqueInput | Prisma.SessionWhereUniqueInput[]
-}
-
-export type SessionUncheckedCreateNestedManyWithoutWalletInput = {
-  create?: Prisma.XOR<Prisma.SessionCreateWithoutWalletInput, Prisma.SessionUncheckedCreateWithoutWalletInput> | Prisma.SessionCreateWithoutWalletInput[] | Prisma.SessionUncheckedCreateWithoutWalletInput[]
-  connectOrCreate?: Prisma.SessionCreateOrConnectWithoutWalletInput | Prisma.SessionCreateOrConnectWithoutWalletInput[]
-  createMany?: Prisma.SessionCreateManyWalletInputEnvelope
-  connect?: Prisma.SessionWhereUniqueInput | Prisma.SessionWhereUniqueInput[]
-}
-
-export type SessionUpdateManyWithoutWalletNestedInput = {
-  create?: Prisma.XOR<Prisma.SessionCreateWithoutWalletInput, Prisma.SessionUncheckedCreateWithoutWalletInput> | Prisma.SessionCreateWithoutWalletInput[] | Prisma.SessionUncheckedCreateWithoutWalletInput[]
-  connectOrCreate?: Prisma.SessionCreateOrConnectWithoutWalletInput | Prisma.SessionCreateOrConnectWithoutWalletInput[]
-  upsert?: Prisma.SessionUpsertWithWhereUniqueWithoutWalletInput | Prisma.SessionUpsertWithWhereUniqueWithoutWalletInput[]
-  createMany?: Prisma.SessionCreateManyWalletInputEnvelope
-  set?: Prisma.SessionWhereUniqueInput | Prisma.SessionWhereUniqueInput[]
-  disconnect?: Prisma.SessionWhereUniqueInput | Prisma.SessionWhereUniqueInput[]
-  delete?: Prisma.SessionWhereUniqueInput | Prisma.SessionWhereUniqueInput[]
-  connect?: Prisma.SessionWhereUniqueInput | Prisma.SessionWhereUniqueInput[]
-  update?: Prisma.SessionUpdateWithWhereUniqueWithoutWalletInput | Prisma.SessionUpdateWithWhereUniqueWithoutWalletInput[]
-  updateMany?: Prisma.SessionUpdateManyWithWhereWithoutWalletInput | Prisma.SessionUpdateManyWithWhereWithoutWalletInput[]
-  deleteMany?: Prisma.SessionScalarWhereInput | Prisma.SessionScalarWhereInput[]
-}
-
-export type SessionUncheckedUpdateManyWithoutWalletNestedInput = {
-  create?: Prisma.XOR<Prisma.SessionCreateWithoutWalletInput, Prisma.SessionUncheckedCreateWithoutWalletInput> | Prisma.SessionCreateWithoutWalletInput[] | Prisma.SessionUncheckedCreateWithoutWalletInput[]
-  connectOrCreate?: Prisma.SessionCreateOrConnectWithoutWalletInput | Prisma.SessionCreateOrConnectWithoutWalletInput[]
-  upsert?: Prisma.SessionUpsertWithWhereUniqueWithoutWalletInput | Prisma.SessionUpsertWithWhereUniqueWithoutWalletInput[]
-  createMany?: Prisma.SessionCreateManyWalletInputEnvelope
-  set?: Prisma.SessionWhereUniqueInput | Prisma.SessionWhereUniqueInput[]
-  disconnect?: Prisma.SessionWhereUniqueInput | Prisma.SessionWhereUniqueInput[]
-  delete?: Prisma.SessionWhereUniqueInput | Prisma.SessionWhereUniqueInput[]
-  connect?: Prisma.SessionWhereUniqueInput | Prisma.SessionWhereUniqueInput[]
-  update?: Prisma.SessionUpdateWithWhereUniqueWithoutWalletInput | Prisma.SessionUpdateWithWhereUniqueWithoutWalletInput[]
-  updateMany?: Prisma.SessionUpdateManyWithWhereWithoutWalletInput | Prisma.SessionUpdateManyWithWhereWithoutWalletInput[]
-  deleteMany?: Prisma.SessionScalarWhereInput | Prisma.SessionScalarWhereInput[]
-}
-
-export type NullableDateTimeFieldUpdateOperationsInput = {
-  set?: Date | string | null
-}
-
 export type SessionCreateWithoutUserInput = {
   id?: string
   jti: string
-  ipAddress?: string | null
-  userAgent?: string | null
-  revoked?: boolean
   revokedAt?: Date | string | null
-  expiresAt: Date | string
   createdAt?: Date | string
-  wallet: Prisma.WalletCreateNestedOneWithoutSessionsInput
 }
 
 export type SessionUncheckedCreateWithoutUserInput = {
   id?: string
-  walletId: string
   jti: string
-  ipAddress?: string | null
-  userAgent?: string | null
-  revoked?: boolean
   revokedAt?: Date | string | null
-  expiresAt: Date | string
   createdAt?: Date | string
 }
 
@@ -573,159 +405,36 @@ export type SessionScalarWhereInput = {
   NOT?: Prisma.SessionScalarWhereInput | Prisma.SessionScalarWhereInput[]
   id?: Prisma.StringFilter<"Session"> | string
   userId?: Prisma.StringFilter<"Session"> | string
-  walletId?: Prisma.StringFilter<"Session"> | string
   jti?: Prisma.StringFilter<"Session"> | string
-  ipAddress?: Prisma.StringNullableFilter<"Session"> | string | null
-  userAgent?: Prisma.StringNullableFilter<"Session"> | string | null
-  revoked?: Prisma.BoolFilter<"Session"> | boolean
   revokedAt?: Prisma.DateTimeNullableFilter<"Session"> | Date | string | null
-  expiresAt?: Prisma.DateTimeFilter<"Session"> | Date | string
   createdAt?: Prisma.DateTimeFilter<"Session"> | Date | string
-}
-
-export type SessionCreateWithoutWalletInput = {
-  id?: string
-  jti: string
-  ipAddress?: string | null
-  userAgent?: string | null
-  revoked?: boolean
-  revokedAt?: Date | string | null
-  expiresAt: Date | string
-  createdAt?: Date | string
-  user: Prisma.UserCreateNestedOneWithoutSessionsInput
-}
-
-export type SessionUncheckedCreateWithoutWalletInput = {
-  id?: string
-  userId: string
-  jti: string
-  ipAddress?: string | null
-  userAgent?: string | null
-  revoked?: boolean
-  revokedAt?: Date | string | null
-  expiresAt: Date | string
-  createdAt?: Date | string
-}
-
-export type SessionCreateOrConnectWithoutWalletInput = {
-  where: Prisma.SessionWhereUniqueInput
-  create: Prisma.XOR<Prisma.SessionCreateWithoutWalletInput, Prisma.SessionUncheckedCreateWithoutWalletInput>
-}
-
-export type SessionCreateManyWalletInputEnvelope = {
-  data: Prisma.SessionCreateManyWalletInput | Prisma.SessionCreateManyWalletInput[]
-  skipDuplicates?: boolean
-}
-
-export type SessionUpsertWithWhereUniqueWithoutWalletInput = {
-  where: Prisma.SessionWhereUniqueInput
-  update: Prisma.XOR<Prisma.SessionUpdateWithoutWalletInput, Prisma.SessionUncheckedUpdateWithoutWalletInput>
-  create: Prisma.XOR<Prisma.SessionCreateWithoutWalletInput, Prisma.SessionUncheckedCreateWithoutWalletInput>
-}
-
-export type SessionUpdateWithWhereUniqueWithoutWalletInput = {
-  where: Prisma.SessionWhereUniqueInput
-  data: Prisma.XOR<Prisma.SessionUpdateWithoutWalletInput, Prisma.SessionUncheckedUpdateWithoutWalletInput>
-}
-
-export type SessionUpdateManyWithWhereWithoutWalletInput = {
-  where: Prisma.SessionScalarWhereInput
-  data: Prisma.XOR<Prisma.SessionUpdateManyMutationInput, Prisma.SessionUncheckedUpdateManyWithoutWalletInput>
 }
 
 export type SessionCreateManyUserInput = {
   id?: string
-  walletId: string
   jti: string
-  ipAddress?: string | null
-  userAgent?: string | null
-  revoked?: boolean
   revokedAt?: Date | string | null
-  expiresAt: Date | string
   createdAt?: Date | string
 }
 
 export type SessionUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   jti?: Prisma.StringFieldUpdateOperationsInput | string
-  ipAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  userAgent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  revoked?: Prisma.BoolFieldUpdateOperationsInput | boolean
   revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  wallet?: Prisma.WalletUpdateOneRequiredWithoutSessionsNestedInput
 }
 
 export type SessionUncheckedUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  walletId?: Prisma.StringFieldUpdateOperationsInput | string
   jti?: Prisma.StringFieldUpdateOperationsInput | string
-  ipAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  userAgent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  revoked?: Prisma.BoolFieldUpdateOperationsInput | boolean
   revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SessionUncheckedUpdateManyWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  walletId?: Prisma.StringFieldUpdateOperationsInput | string
   jti?: Prisma.StringFieldUpdateOperationsInput | string
-  ipAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  userAgent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  revoked?: Prisma.BoolFieldUpdateOperationsInput | boolean
   revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-}
-
-export type SessionCreateManyWalletInput = {
-  id?: string
-  userId: string
-  jti: string
-  ipAddress?: string | null
-  userAgent?: string | null
-  revoked?: boolean
-  revokedAt?: Date | string | null
-  expiresAt: Date | string
-  createdAt?: Date | string
-}
-
-export type SessionUpdateWithoutWalletInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  jti?: Prisma.StringFieldUpdateOperationsInput | string
-  ipAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  userAgent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  revoked?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  user?: Prisma.UserUpdateOneRequiredWithoutSessionsNestedInput
-}
-
-export type SessionUncheckedUpdateWithoutWalletInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  userId?: Prisma.StringFieldUpdateOperationsInput | string
-  jti?: Prisma.StringFieldUpdateOperationsInput | string
-  ipAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  userAgent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  revoked?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-}
-
-export type SessionUncheckedUpdateManyWithoutWalletInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  userId?: Prisma.StringFieldUpdateOperationsInput | string
-  jti?: Prisma.StringFieldUpdateOperationsInput | string
-  ipAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  userAgent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  revoked?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -734,91 +443,59 @@ export type SessionUncheckedUpdateManyWithoutWalletInput = {
 export type SessionSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   userId?: boolean
-  walletId?: boolean
   jti?: boolean
-  ipAddress?: boolean
-  userAgent?: boolean
-  revoked?: boolean
   revokedAt?: boolean
-  expiresAt?: boolean
   createdAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
-  wallet?: boolean | Prisma.WalletDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["session"]>
 
 export type SessionSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   userId?: boolean
-  walletId?: boolean
   jti?: boolean
-  ipAddress?: boolean
-  userAgent?: boolean
-  revoked?: boolean
   revokedAt?: boolean
-  expiresAt?: boolean
   createdAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
-  wallet?: boolean | Prisma.WalletDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["session"]>
 
 export type SessionSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   userId?: boolean
-  walletId?: boolean
   jti?: boolean
-  ipAddress?: boolean
-  userAgent?: boolean
-  revoked?: boolean
   revokedAt?: boolean
-  expiresAt?: boolean
   createdAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
-  wallet?: boolean | Prisma.WalletDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["session"]>
 
 export type SessionSelectScalar = {
   id?: boolean
   userId?: boolean
-  walletId?: boolean
   jti?: boolean
-  ipAddress?: boolean
-  userAgent?: boolean
-  revoked?: boolean
   revokedAt?: boolean
-  expiresAt?: boolean
   createdAt?: boolean
 }
 
-export type SessionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "walletId" | "jti" | "ipAddress" | "userAgent" | "revoked" | "revokedAt" | "expiresAt" | "createdAt", ExtArgs["result"]["session"]>
+export type SessionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "jti" | "revokedAt" | "createdAt", ExtArgs["result"]["session"]>
 export type SessionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
-  wallet?: boolean | Prisma.WalletDefaultArgs<ExtArgs>
 }
 export type SessionIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
-  wallet?: boolean | Prisma.WalletDefaultArgs<ExtArgs>
 }
 export type SessionIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
-  wallet?: boolean | Prisma.WalletDefaultArgs<ExtArgs>
 }
 
 export type $SessionPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Session"
   objects: {
     user: Prisma.$UserPayload<ExtArgs>
-    wallet: Prisma.$WalletPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     userId: string
-    walletId: string
     jti: string
-    ipAddress: string | null
-    userAgent: string | null
-    revoked: boolean
     revokedAt: Date | null
-    expiresAt: Date
     createdAt: Date
   }, ExtArgs["result"]["session"]>
   composites: {}
@@ -1215,7 +892,6 @@ readonly fields: SessionFieldRefs;
 export interface Prisma__SessionClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   user<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-  wallet<T extends Prisma.WalletDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.WalletDefaultArgs<ExtArgs>>): Prisma.Prisma__WalletClient<runtime.Types.Result.GetResult<Prisma.$WalletPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1247,13 +923,8 @@ export interface Prisma__SessionClient<T, Null = never, ExtArgs extends runtime.
 export interface SessionFieldRefs {
   readonly id: Prisma.FieldRef<"Session", 'String'>
   readonly userId: Prisma.FieldRef<"Session", 'String'>
-  readonly walletId: Prisma.FieldRef<"Session", 'String'>
   readonly jti: Prisma.FieldRef<"Session", 'String'>
-  readonly ipAddress: Prisma.FieldRef<"Session", 'String'>
-  readonly userAgent: Prisma.FieldRef<"Session", 'String'>
-  readonly revoked: Prisma.FieldRef<"Session", 'Boolean'>
   readonly revokedAt: Prisma.FieldRef<"Session", 'DateTime'>
-  readonly expiresAt: Prisma.FieldRef<"Session", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"Session", 'DateTime'>
 }
     

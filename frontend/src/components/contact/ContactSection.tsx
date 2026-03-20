@@ -24,7 +24,7 @@ export function ContactSection() {
           <div className="space-y-12">
             <div>
               <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6 leading-tight">
-                Let's Build the Future of <span className="text-blue-900">Trade Finance</span> Together
+                Let&apos;s Build the Future of <span className="text-blue-900">Trade Finance</span> Together
               </h2>
               <p className="text-xl text-gray-600 leading-relaxed max-w-lg">
                 Have questions about our protocol? Want to partner or join our oracle network? Reach out and our team will get back to you within 24 hours.

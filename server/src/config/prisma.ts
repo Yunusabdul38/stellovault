@@ -1,9 +1,11 @@
 import { Pool } from 'pg';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from "../generated/prisma/client";
+
 // 1. Database Connection Logic
 const connectionString = process.env.DATABASE_URL;
-const pool = new Pool({ connectionString });
+// Cast to any to avoid @types/pg version conflict between root and adapter-pg's bundled types
+const pool = new Pool({ connectionString }) as any;
 const adapter = new PrismaPg(pool);
 
 // 2. Prevent Multiple Instances (Singleton)

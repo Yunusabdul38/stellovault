@@ -9,9 +9,9 @@ import type {
 } from "../types/risk";
 
 /** Loan-like record from DB (avoids depending on generated Prisma types at test time). */
-type LoanRecord = { status: string; amount: unknown; collateralAmt: unknown };
+type LoanRecord = { status: string; amount: unknown };
 /** RiskScore row from DB. */
-type RiskScoreRow = { wallet: string; score: number; grade: string; components: unknown; computedAt: Date };
+type RiskScoreRow = { walletAddress: string; score: number; grade: string; components: unknown; computedAt: Date };
 
 const COMPONENT_MAX = 250; // each component 0–250, total 0–1000
 function scoreToGrade(score: number): RiskGrade {
@@ -77,13 +77,14 @@ async function computeCollateralCoverageComponent(wallet: string): Promise<numbe
     if (!user) return COMPONENT_MAX;
     const loans = await prisma.loan.findMany({
         where: { borrowerId: user.id },
+        include: { collateral: true },
     });
     if (loans.length === 0) return COMPONENT_MAX;
     let sumRatio = 0;
     let count = 0;
     for (const l of loans) {
         const amt = Number(l.amount);
-        const coll = Number(l.collateralAmt);
+        const coll = l.collateral ? Number(l.collateral.amount) : 0;
         if (amt > 0) {
             sumRatio += coll / amt;
             count++;
@@ -91,7 +92,7 @@ async function computeCollateralCoverageComponent(wallet: string): Promise<numbe
     }
     if (count === 0) return COMPONENT_MAX;
     const avgRatio = sumRatio / count;
-    const factor = Math.min(1, avgRatio / 1.5); // 1.5+ ratio = full score
+    const factor = Math.min(1, avgRatio / 1.5);
     return toComponent(factor);
 }
 
@@ -142,9 +143,9 @@ async function computeScore(
         }
         if (scenarioOverrides.addLoan?.amount != null && scenarioOverrides.addLoan?.collateralAmt != null) {
             const user = await prisma.user.findUnique({ where: { stellarAddress: wallet } });
-            const loans = user ? await prisma.loan.findMany({ where: { borrowerId: user.id } }) : [];
+            const loans = user ? await prisma.loan.findMany({ where: { borrowerId: user.id }, include: { collateral: true } }) : [];
             const virtualLoans = [
-                ...loans.map((l: LoanRecord) => ({ amount: Number(l.amount), collateralAmt: Number(l.collateralAmt) })),
+                ...loans.map((l) => ({ amount: Number(l.amount), collateralAmt: l.collateral ? Number(l.collateral.amount) : 0 })),
                 {
                     amount: scenarioOverrides.addLoan.amount,
                     collateralAmt: scenarioOverrides.addLoan.collateralAmt,
@@ -161,15 +162,14 @@ async function computeScore(
         }
         if (scenarioOverrides.collateralRatioChange != null) {
             const user = await prisma.user.findUnique({ where: { stellarAddress: wallet } });
-            const loans = user ? await prisma.loan.findMany({ where: { borrowerId: user.id } }) : [];
+            const loans = user ? await prisma.loan.findMany({ where: { borrowerId: user.id }, include: { collateral: true } }) : [];
             const currentAvg =
                 loans.length > 0
                     ? loans.reduce(
-                          (s: number, l: LoanRecord) =>
-                              s + (Number(l.amount) > 0 ? Number(l.collateralAmt) / Number(l.amount) : 0),
+                          (s: number, l) =>
+                              s + (Number(l.amount) > 0 ? (l.collateral ? Number(l.collateral.amount) : 0) / Number(l.amount) : 0),
                           0
-                      ) /
-                      loans.length
+                      ) / loans.length
                     : 0;
             const newRatio = currentAvg * scenarioOverrides.collateralRatioChange;
             collateralCoverage = toComponent(Math.min(1, newRatio / 1.5));
@@ -202,7 +202,7 @@ export class RiskEngineService {
         const computedAt = new Date();
         await prisma.riskScore.create({
             data: {
-                wallet,
+                walletAddress: wallet,
                 score,
                 grade,
                 components: components as object,
@@ -228,13 +228,13 @@ export class RiskEngineService {
     ): Promise<RiskScoreResponse[]> {
         const rows = await prisma.riskScore.findMany({
             where: {
-                wallet,
+                walletAddress: wallet,
                 computedAt: { gte: startDate, lte: endDate },
             },
             orderBy: { computedAt: "asc" },
         });
         return rows.map((r: RiskScoreRow) => ({
-            wallet: r.wallet,
+            wallet: r.walletAddress,
             score: r.score,
             grade: r.grade as RiskGrade,
             components: r.components as RiskScoreComponents,

@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import governanceService from "../services/governance.service";
-import { ProposalStatus } from "@prisma/client";
+import governanceService, { GovernanceStatus } from "../services/governance.service";
 
 /**
  * GET /api/governance/proposals
@@ -9,17 +8,17 @@ import { ProposalStatus } from "@prisma/client";
 export async function getProposals(req: Request, res: Response, next: NextFunction) {
     try {
         // Validate status enum
-        const validStatuses = Object.values(ProposalStatus);
+        const validStatuses = Object.values(GovernanceStatus);
         const rawStatus = req.query.status as string;
-        let status: ProposalStatus | undefined;
+        let status: GovernanceStatus | undefined;
         if (rawStatus) {
-            if (!validStatuses.includes(rawStatus as ProposalStatus)) {
+            if (!validStatuses.includes(rawStatus as GovernanceStatus)) {
                 return res.status(400).json({
                     success: false,
                     error: `Invalid status. Must be one of: ${validStatuses.join(", ")}`
                 });
             }
-            status = rawStatus as ProposalStatus;
+            status = rawStatus as GovernanceStatus;
         }
 
         // Validate limit and offset
@@ -112,12 +111,11 @@ export async function createProposal(req: Request, res: Response, next: NextFunc
             }
         }
 
-        const { proposal, xdr } = await governanceService.createProposal({
+        const { proposal } = await governanceService.createProposal({
             title,
             description,
             proposerId,
-            quorum,
-            deadline: deadlineDate,
+            endsAt: deadlineDate ?? new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
             contractId
         });
 
@@ -126,7 +124,6 @@ export async function createProposal(req: Request, res: Response, next: NextFunc
             data: {
                 proposalId: proposal.id,
                 proposal,
-                xdr
             }
         });
     } catch (err) {
@@ -208,12 +205,13 @@ export async function submitVote(req: Request, res: Response, next: NextFunction
             });
         }
 
-        const { vote, xdr } = await governanceService.submitVote({
+        const { vote } = await governanceService.castVote({
             proposalId,
-            voterId,
-            voteFor,
-            weight
+            voterAddress: voterId,
+            vote: voteFor ? "YES" : "NO",
+            weight: String(weight),
         });
+        const xdr: string | undefined = undefined;
 
         res.status(201).json({
             success: true,

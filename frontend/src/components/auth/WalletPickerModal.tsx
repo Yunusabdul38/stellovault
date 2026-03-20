@@ -20,7 +20,7 @@ export function WalletPickerModal({ isOpen, onClose, onConnect }: WalletPickerMo
         // However, usually we just try to connect.
         const checkFreighter = async () => {
             // Simple check if the extension object exists
-            // @ts-ignore
+            // @ts-expect-error freighter is injected by browser extension
             if (window.freighter) {
                 setHasFreighter(true);
             }

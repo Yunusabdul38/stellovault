@@ -1,5 +1,3 @@
-import { env } from "./env";
-
 /**
  * All deployed Soroban contract IDs.
  * Set via environment variables to support testnet vs mainnet.

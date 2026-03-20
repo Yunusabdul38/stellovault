@@ -7,13 +7,13 @@ import {
     ValidationError,
     TooManyRequestsError,
 } from "../config/errors";
-import { Prisma, PrismaClient } from "@prisma/client";
+import { Prisma } from "../generated/prisma/client";
 import { prisma } from "./database.service";
+
+type TransactionClient = Parameters<Parameters<typeof prisma.$transaction>[0]>[0];
 
 const CONFIRMATION_RATE_LIMIT_MS = 60 * 1000;
 const MAX_CONFIRMATIONS_PER_MINUTE = 10;
-
-type TransactionClient = Omit<PrismaClient, "$connect" | "$disconnect" | "$on" | "$transaction" | "$use" | "$extends">;
 
 type CreateOracleInput = {
     address: string;

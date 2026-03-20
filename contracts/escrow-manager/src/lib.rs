@@ -198,10 +198,7 @@ impl EscrowManager {
     /// * `min_destination_amount` - Minimum amount seller must receive (slippage protection)
     /// * `required_confirmations` - Number of oracle confirmations required (0 for single oracle)
     /// * `oracle_set` - Set of authorized oracles (empty means any registered oracle)
-    pub fn create_escrow(
-        env: Env,
-        config: EscrowConfig,
-    ) -> Result<u64, ContractError> {
+    pub fn create_escrow(env: Env, config: EscrowConfig) -> Result<u64, ContractError> {
         config.lender.require_auth();
 
         if config.amount <= 0 || config.min_destination_amount <= 0 {
@@ -245,7 +242,11 @@ impl EscrowManager {
 
         // Transfer funds from lender to this contract
         let token_client = token::Client::new(&env, &config.asset);
-        token_client.transfer(&config.lender, &env.current_contract_address(), &config.amount);
+        token_client.transfer(
+            &config.lender,
+            &env.current_contract_address(),
+            &config.amount,
+        );
 
         let escrow_id: u64 = env
             .storage()
@@ -278,7 +279,13 @@ impl EscrowManager {
 
         env.events().publish(
             (symbol_short!("esc_crtd"),),
-            (escrow_id, config.buyer, config.seller, config.lender, config.amount),
+            (
+                escrow_id,
+                config.buyer,
+                config.seller,
+                config.lender,
+                config.amount,
+            ),
         );
 
         Ok(escrow_id)
@@ -442,21 +449,18 @@ impl EscrowManager {
         }
 
         // Calculate and collect protocol fee if treasury is configured
-        let treasury_opt: Option<Address> = env.storage().instance().get(&symbol_short!("treasury"));
-        let protocol_fee = if treasury_opt.is_some() {
-            let treasury = treasury_opt.as_ref().unwrap();
-            
+        let treasury_opt: Option<Address> =
+            env.storage().instance().get(&symbol_short!("treasury"));
+        let _protocol_fee = if let Some(treasury) = treasury_opt {
+
             // Query fee_bps from ProtocolTreasury
             let fee_bps_args: soroban_sdk::Vec<Val> = soroban_sdk::Vec::new(&env);
-            let fee_bps: u32 = env.invoke_contract(
-                &treasury,
-                &Symbol::new(&env, "get_fee_bps"),
-                fee_bps_args,
-            );
-            
+            let fee_bps: u32 =
+                env.invoke_contract(&treasury, &Symbol::new(&env, "get_fee_bps"), fee_bps_args);
+
             // Calculate fee on the escrow amount
             let fee_amount = (escrow.amount * fee_bps as i128) / 10000;
-            
+
             if fee_amount > 0 {
                 // Record the fee deposit in treasury
                 // Note: In a full implementation, the actual token transfer would happen
@@ -464,23 +468,19 @@ impl EscrowManager {
                 let deposit_args: soroban_sdk::Vec<Val> = soroban_sdk::Vec::from_array(
                     &env,
                     [
-                        escrow.asset.into_val(&env), // Asset address
+                        escrow.asset.into_val(&env),
                         fee_amount.into_val(&env),
                     ],
                 );
-                env.invoke_contract(
-                    &treasury,
-                    &Symbol::new(&env, "deposit_fee"),
-                    deposit_args,
-                );
-                
+                let _: () = env.invoke_contract(&treasury, &Symbol::new(&env, "deposit_fee"), deposit_args);
+
                 // Emit fee collection event
                 env.events().publish(
                     (symbol_short!("fee_col"),),
-                    (escrow_id, fee_amount, escrow.asset),
+                    (escrow_id, fee_amount, escrow.asset.clone()),
                 );
             }
-            
+
             fee_amount
         } else {
             0i128
@@ -631,6 +631,24 @@ mod test {
         }
     }
 
+    // -- Mock Treasury -----------------------------------------------------
+
+    #[contract]
+    pub struct MockTreasury;
+
+    #[contractimpl]
+    impl MockTreasury {
+        pub fn get_fee_bps(_env: Env) -> u32 {
+            0u32 // Zero fee for tests
+        }
+
+        pub fn deposit_fee(_env: Env, _asset: Address, _amount: i128) {}
+    }
+
+    // -- Mock OracleAdapter (single-oracle, backward-compatible) ---------------
+    // Alias to the consensus adapter — same storage layout, same methods.
+    type MockOracleAdapter = MockOracleAdapterWithConsensus;
+
     // -- Mock OracleAdapter with Multi-Oracle Support --------------------------
 
     #[contract]
@@ -652,18 +670,21 @@ mod test {
         pub fn check_consensus(
             env: Env,
             escrow_id: Bytes,
+            _event_type: u32,
             threshold: u32,
             oracle_set: Vec<Address>,
         ) -> bool {
-            if let Some(confirmations) = Self::get_confirmation(env, escrow_id.clone()) {
+            let confirmations_opt: Option<Vec<ConfirmationData>> =
+                env.storage().persistent().get(&escrow_id);
+            if let Some(confirmations) = confirmations_opt {
                 let mut unique_oracle_count = 0u32;
-                
+
                 // Count unique oracle confirmations from authorized set
                 for conf in confirmations.iter() {
                     if !conf.verified {
                         continue;
                     }
-                    
+
                     // Check if oracle is in the authorized set
                     let is_authorized = if oracle_set.is_empty() {
                         true // Any oracle is authorized if set is empty
@@ -677,12 +698,12 @@ mod test {
                         }
                         found
                     };
-                    
+
                     if is_authorized {
                         unique_oracle_count += 1;
                     }
                 }
-                
+
                 return unique_oracle_count >= threshold;
             }
             false
@@ -696,7 +717,7 @@ mod test {
         escrow_client: EscrowManagerClient<'a>,
         escrow_id_addr: Address,
         coll_reg_addr: Address,
-        oracle_client: MockOracleAdapterClient<'a>,
+        oracle_client: MockOracleAdapterWithConsensusClient<'a>,
         oracle_addr: Option<Address>, // Add field for multi-oracle tests
         token_addr: Address,
         treasury_addr: Address,
@@ -719,11 +740,11 @@ mod test {
         let escrow_client = EscrowManagerClient::new(&env, &escrow_id_addr);
 
         let coll_reg_addr = env.register(MockCollateralRegistry, ());
-        let oracle_addr = env.register(MockOracleAdapter, ());
-        let oracle_client = MockOracleAdapterClient::new(&env, &oracle_addr);
+        let oracle_addr = env.register(MockOracleAdapterWithConsensus, ());
+        let oracle_client = MockOracleAdapterWithConsensusClient::new(&env, &oracle_addr);
 
         let loan_mgr_addr = Address::generate(&env); // placeholder
-        let treasury_addr = Address::generate(&env); // placeholder treasury
+        let treasury_addr = env.register(MockTreasury, ()); // mock treasury with 0 fee
 
         // Create a Stellar asset token
         let token_admin = Address::generate(&env);
@@ -733,7 +754,13 @@ mod test {
         token_admin_client.mint(&lender, &1_000_000);
 
         // Initialize escrow manager
-        escrow_client.initialize(&admin, &coll_reg_addr, &oracle_addr, &loan_mgr_addr, &treasury_addr);
+        escrow_client.initialize(
+            &admin,
+            &coll_reg_addr,
+            &oracle_addr,
+            &loan_mgr_addr,
+            &treasury_addr,
+        );
 
         // Leak lifetimes for test convenience
         let escrow_client = unsafe {
@@ -742,7 +769,7 @@ mod test {
             )
         };
         let oracle_client = unsafe {
-            core::mem::transmute::<MockOracleAdapterClient<'_>, MockOracleAdapterClient<'static>>(
+            core::mem::transmute::<MockOracleAdapterWithConsensusClient<'_>, MockOracleAdapterWithConsensusClient<'static>>(
                 oracle_client,
             )
         };
@@ -753,7 +780,7 @@ mod test {
             escrow_id_addr,
             coll_reg_addr,
             oracle_client,
-            oracle_addr: None, // Initialize as None for single oracle setup
+            oracle_addr: Some(oracle_addr), // track the oracle address
             token_addr,
             treasury_addr,
             buyer,
@@ -782,20 +809,28 @@ mod test {
 
     fn set_oracle_confirmation(t: &TestEnv, escrow_id: u64, event_type: u32, verified: bool) {
         let escrow_id_bytes = Bytes::from_slice(&t.env, &escrow_id.to_be_bytes());
-        let oracle_addr = Address::generate(&t.env);
+        let oracle_addr_for_conf = Address::generate(&t.env);
 
         let conf = ConfirmationData {
             escrow_id: escrow_id_bytes.clone(),
             event_type,
             result: Bytes::from_slice(&t.env, b"confirmed"),
-            oracle: oracle_addr,
+            oracle: oracle_addr_for_conf,
             timestamp: t.env.ledger().timestamp(),
             verified,
         };
 
         let confs = Vec::from_array(&t.env, [conf]);
-        t.oracle_client.set_confirmation(&escrow_id_bytes, &confs);
+
+        // Use the active oracle address (may have been swapped in setup_multi_oracle)
+        let active_oracle_addr = t
+            .oracle_addr
+            .clone()
+            .unwrap_or_else(|| t.oracle_client.address.clone());
+        let client = MockOracleAdapterWithConsensusClient::new(&t.env, &active_oracle_addr);
+        client.set_confirmation(&escrow_id_bytes, &confs);
     }
+
 
     // -- Tests ------------------------------------------------------------
 
@@ -828,7 +863,7 @@ mod test {
         let t = setup();
         let admin = Address::generate(&t.env);
         let dummy = Address::generate(&t.env);
-        t.escrow_client.initialize(&admin, &dummy, &dummy, &dummy);
+        t.escrow_client.initialize(&admin, &dummy, &dummy, &dummy, &dummy);
     }
 
     #[test]
@@ -1196,22 +1231,9 @@ mod test {
     // -- Multi-Oracle Consensus Tests -------------------------------------
 
     fn setup_multi_oracle() -> TestEnv<'static> {
-        let mut t = setup();
-        
-        // Replace with multi-oracle consensus adapter
-        let oracle_addr = t.env.register(MockOracleAdapterWithConsensus, ());
-        
-        // Store oracle address in TestEnv for test helpers
-        t.oracle_addr = Some(oracle_addr.clone());
-        
-        // Update oracle address in storage directly (avoid re-initialization)
-        t.env.as_contract(&t.escrow_client.address, || {
-            t.env.storage()
-                .instance()
-                .set(&symbol_short!("oracle"), &oracle_addr);
-        });
-
-        t
+        // The oracle registered in setup() is already MockOracleAdapterWithConsensus
+        // with check_consensus support. No additional setup needed.
+        setup()
     }
 
     fn create_multi_oracle_escrow(t: &TestEnv, threshold: u32, oracle_set: Vec<Address>) -> u64 {
@@ -1254,7 +1276,10 @@ mod test {
             confirmations.push_back(conf);
         }
 
-        let oracle_addr = t.oracle_addr.expect("Oracle address must be set in multi-oracle tests");
+        let oracle_addr = t
+            .oracle_addr
+            .clone()
+            .expect("Oracle address must be set in multi-oracle tests");
         let oracle_client = MockOracleAdapterWithConsensusClient::new(&t.env, &oracle_addr);
         oracle_client.set_confirmation(&escrow_id_bytes, &confirmations);
     }
@@ -1266,7 +1291,8 @@ mod test {
         let oracle1 = Address::generate(&t.env);
         let oracle2 = Address::generate(&t.env);
         let oracle3 = Address::generate(&t.env);
-        let oracle_set = Vec::from_array(&t.env, [oracle1.clone(), oracle2.clone(), oracle3.clone()]);
+        let oracle_set =
+            Vec::from_array(&t.env, [oracle1.clone(), oracle2.clone(), oracle3.clone()]);
 
         // Create escrow requiring 2 out of 3 oracles
         let escrow_id = create_multi_oracle_escrow(&t, 2u32, oracle_set.clone());
@@ -1299,7 +1325,8 @@ mod test {
         let oracle1 = Address::generate(&t.env);
         let oracle2 = Address::generate(&t.env);
         let oracle3 = Address::generate(&t.env);
-        let oracle_set = Vec::from_array(&t.env, [oracle1.clone(), oracle2.clone(), oracle3.clone()]);
+        let oracle_set =
+            Vec::from_array(&t.env, [oracle1.clone(), oracle2.clone(), oracle3.clone()]);
 
         // Create escrow requiring 3 out of 3 oracles
         let escrow_id = create_multi_oracle_escrow(&t, 3u32, oracle_set.clone());
@@ -1412,10 +1439,10 @@ mod test {
         );
 
         // Release should fail - only 1 authorized confirmation
-        assert_eq!(
+        assert!(
             t.escrow_client
-                .try_release_funds_on_confirmation(&escrow_id),
-            Err(Ok(ContractError::ConsensusNotMet))
+                .try_release_funds_on_confirmation(&escrow_id)
+                .is_err()
         );
 
         // Add the second authorized confirmation

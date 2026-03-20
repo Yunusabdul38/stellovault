@@ -27,7 +27,7 @@ export default function ContactPage() {
         <div className="max-w-4xl mx-auto relative z-10">
           <h1 className="text-4xl md:text-6xl font-bold mb-6">Contact Our Team</h1>
           <p className="text-xl text-blue-100/80 max-w-2xl mx-auto">
-            Connecting global liquidity to real-world trade. We're here to support your journey into on-chain financing.
+            Connecting global liquidity to real-world trade. We&apos;re here to support your journey into on-chain financing.
           </p>
         </div>
       </div>

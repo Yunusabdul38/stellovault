@@ -13,7 +13,8 @@
         "resolveJsonModule": true,
         "baseUrl": ".",
         "types": [
-            "node"
+            "node",
+            "jest"
         ],
         "paths": {
       "@prisma-generated/*": ["./prisma/generated/prisma/*"]

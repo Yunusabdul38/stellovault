@@ -5,7 +5,9 @@
 
 #![no_std]
 
-use soroban_sdk::{contract, contractimpl, contracttype, symbol_short, Address, BytesN, Env, Symbol};
+use soroban_sdk::{
+    contract, contractimpl, contracttype, symbol_short, Address, BytesN, Env, Symbol,
+};
 
 /// Contract errors
 #[contracttype]
@@ -66,13 +68,14 @@ impl CollateralRegistry {
             return Err(ContractError::AlreadyInitialized);
         }
 
-        env.storage().instance().set(&symbol_short!("admin"), &admin);
-        env.storage().instance().set(&symbol_short!("next_id"), &1u64);
+        env.storage()
+            .instance()
+            .set(&symbol_short!("admin"), &admin);
+        env.storage()
+            .instance()
+            .set(&symbol_short!("next_id"), &1u64);
 
-        env.events().publish(
-            (symbol_short!("reg_init"),),
-            (admin,),
-        );
+        env.events().publish((symbol_short!("reg_init"),), (admin,));
 
         Ok(())
     }
@@ -111,7 +114,11 @@ impl CollateralRegistry {
 
         // Check for duplicate metadata hash
         let metadata_key = Symbol::new(&env, "metadata");
-        if env.storage().persistent().has(&(metadata_key.clone(), metadata_hash.clone())) {
+        if env
+            .storage()
+            .persistent()
+            .has(&(metadata_key.clone(), metadata_hash.clone()))
+        {
             return Err(ContractError::DuplicateMetadata);
         }
 
@@ -139,7 +146,9 @@ impl CollateralRegistry {
         env.storage().persistent().set(&collateral_id, &collateral);
 
         // Store metadata hash mapping
-        env.storage().persistent().set(&(metadata_key, metadata_hash), &collateral_id);
+        env.storage()
+            .persistent()
+            .set(&(metadata_key, metadata_hash), &collateral_id);
 
         // Update next ID
         env.storage()
@@ -185,10 +194,7 @@ impl CollateralRegistry {
         collateral.locked = true;
         env.storage().persistent().set(&id, &collateral);
 
-        env.events().publish(
-            (symbol_short!("coll_lock"),),
-            (id,),
-        );
+        env.events().publish((symbol_short!("coll_lock"),), (id,));
 
         Ok(())
     }
@@ -223,10 +229,7 @@ impl CollateralRegistry {
         collateral.locked = false;
         env.storage().persistent().set(&id, &collateral);
 
-        env.events().publish(
-            (symbol_short!("coll_unlk"),),
-            (id,),
-        );
+        env.events().publish((symbol_short!("coll_unlk"),), (id,));
 
         Ok(())
     }
@@ -273,10 +276,8 @@ impl CollateralRegistry {
         env.storage().persistent().set(&collateral_id, &collateral);
 
         // Emit event
-        env.events().publish(
-            (symbol_short!("coll_val"),),
-            (collateral_id, new_value),
-        );
+        env.events()
+            .publish((symbol_short!("coll_val"),), (collateral_id, new_value));
 
         Ok(())
     }
@@ -359,11 +360,12 @@ impl CollateralRegistry {
 #[cfg(test)]
 mod test {
     use super::*;
-    use soroban_sdk::{testutils::Address as _, Env};
+    use soroban_sdk::{testutils::Address as _, testutils::Ledger as _, Env};
 
     #[test]
     fn test_initialize() {
         let env = Env::default();
+        env.mock_all_auths();
         let admin = Address::generate(&env);
         let contract_id = env.register_contract(None, CollateralRegistry);
 
@@ -379,6 +381,7 @@ mod test {
     #[test]
     fn test_register_collateral_success() {
         let env = Env::default();
+        env.mock_all_auths();
         let admin = Address::generate(&env);
         let owner = Address::generate(&env);
         let contract_id = env.register_contract(None, CollateralRegistry);
@@ -404,7 +407,8 @@ mod test {
             assert_eq!(collateral_id, 1);
 
             // Verify collateral was stored
-            let collateral = CollateralRegistry::get_collateral(env.clone(), collateral_id).unwrap();
+            let collateral =
+                CollateralRegistry::get_collateral(env.clone(), collateral_id).unwrap();
             assert_eq!(collateral.owner, owner);
             assert_eq!(collateral.face_value, 1000);
             assert_eq!(collateral.realized_value, 1000);
@@ -415,6 +419,7 @@ mod test {
     #[test]
     fn test_update_valuation_success() {
         let env = Env::default();
+        env.mock_all_auths();
         let admin = Address::generate(&env);
         let oracle = Address::generate(&env);
         let owner = Address::generate(&env);
@@ -434,14 +439,17 @@ mod test {
                 1000,
                 future_ts,
                 metadata_hash,
-            ).unwrap();
+            )
+            .unwrap();
 
             // Update valuation
-            let update_result = CollateralRegistry::update_valuation(env.clone(), collateral_id, 1200);
+            let update_result =
+                CollateralRegistry::update_valuation(env.clone(), collateral_id, 1200);
             assert!(update_result.is_ok());
 
             // Verify updated value
-            let collateral = CollateralRegistry::get_collateral(env.clone(), collateral_id).unwrap();
+            let collateral =
+                CollateralRegistry::get_collateral(env.clone(), collateral_id).unwrap();
             assert_eq!(collateral.realized_value, 1200);
             assert!(collateral.last_valuation_ts == env.ledger().timestamp());
         });
@@ -450,6 +458,7 @@ mod test {
     #[test]
     fn test_register_collateral_invalid_amount() {
         let env = Env::default();
+        env.mock_all_auths();
         let admin = Address::generate(&env);
         let owner = Address::generate(&env);
         let contract_id = env.register_contract(None, CollateralRegistry);
@@ -475,9 +484,13 @@ mod test {
     #[test]
     fn test_register_collateral_expired() {
         let env = Env::default();
+        env.mock_all_auths();
         let admin = Address::generate(&env);
         let owner = Address::generate(&env);
         let contract_id = env.register_contract(None, CollateralRegistry);
+
+        // Set timestamp > 0 so we can subtract 1 without overflow
+        env.ledger().set_timestamp(1000);
 
         env.as_contract(&contract_id, || {
             CollateralRegistry::initialize(env.clone(), admin).unwrap();
@@ -500,6 +513,7 @@ mod test {
     #[test]
     fn test_register_collateral_duplicate_metadata() {
         let env = Env::default();
+        env.mock_all_auths();
         let admin = Address::generate(&env);
         let owner1 = Address::generate(&env);
         let owner2 = Address::generate(&env);
@@ -518,7 +532,8 @@ mod test {
                 1000,
                 future_ts,
                 metadata_hash.clone(),
-            ).unwrap();
+            )
+            .unwrap();
 
             // Try to register duplicate
             let result = CollateralRegistry::register_collateral(
@@ -536,42 +551,32 @@ mod test {
     #[test]
     fn test_lock_unlock_collateral() {
         let env = Env::default();
+        env.mock_all_auths();
         let admin = Address::generate(&env);
         let escrow_manager = Address::generate(&env);
         let owner = Address::generate(&env);
         let contract_id = env.register_contract(None, CollateralRegistry);
+        let client = CollateralRegistryClient::new(&env, &contract_id);
 
-        env.as_contract(&contract_id, || {
-            // Initialize
-            CollateralRegistry::initialize(env.clone(), admin.clone()).unwrap();
-            CollateralRegistry::set_escrow_manager(env.clone(), escrow_manager.clone()).unwrap();
+        client.initialize(&admin);
+        client.set_escrow_manager(&escrow_manager);
 
-            // Register collateral
-            let future_ts = env.ledger().timestamp() + 86400;
-            let metadata_hash = BytesN::from_array(&env, &[1; 32]);
-            let collateral_id = CollateralRegistry::register_collateral(
-                env.clone(),
-                owner,
-                1000,
-                future_ts,
-                metadata_hash,
-            ).unwrap();
+        let future_ts = env.ledger().timestamp() + 86400;
+        let metadata_hash = BytesN::from_array(&env, &[1; 32]);
+        let collateral_id = client
+            .register_collateral(&owner, &1000, &future_ts, &metadata_hash);
 
-            // Lock collateral
-            let lock_result = CollateralRegistry::lock_collateral(env.clone(), collateral_id);
-            assert!(lock_result.is_ok());
-            assert!(CollateralRegistry::is_locked(env.clone(), collateral_id));
+        client.lock_collateral(&collateral_id);
+        assert!(client.is_locked(&collateral_id));
 
-            // Unlock collateral
-            let unlock_result = CollateralRegistry::unlock_collateral(env.clone(), collateral_id);
-            assert!(unlock_result.is_ok());
-            assert!(!CollateralRegistry::is_locked(env.clone(), collateral_id));
-        });
+        client.unlock_collateral(&collateral_id);
+        assert!(!client.is_locked(&collateral_id));
     }
 
     #[test]
     fn test_lock_collateral_not_found() {
         let env = Env::default();
+        env.mock_all_auths();
         let admin = Address::generate(&env);
         let escrow_manager = Address::generate(&env);
         let contract_id = env.register_contract(None, CollateralRegistry);
@@ -588,8 +593,9 @@ mod test {
     #[test]
     fn test_lock_collateral_unauthorized() {
         let env = Env::default();
+        env.mock_all_auths();
         let admin = Address::generate(&env);
-        let unauthorized = Address::generate(&env);
+        let _unauthorized = Address::generate(&env);
         let owner = Address::generate(&env);
         let contract_id = env.register_contract(None, CollateralRegistry);
 
@@ -605,7 +611,8 @@ mod test {
                 1000,
                 future_ts,
                 metadata_hash,
-            ).unwrap();
+            )
+            .unwrap();
 
             // Try to lock with unauthorized address (no escrow manager set)
             let result = CollateralRegistry::lock_collateral(env.clone(), collateral_id);

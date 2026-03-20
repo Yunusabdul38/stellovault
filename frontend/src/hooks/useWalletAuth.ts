@@ -89,7 +89,7 @@ export function useWalletAuth(): WalletAuth {
 
             const signedMessageStr = typeof result.signedMessage === 'string'
                 ? result.signedMessage
-                : Buffer.from(result.signedMessage as any).toString('base64');
+                : Buffer.from(result.signedMessage as Uint8Array).toString('base64');
             const signerPublicKey = result.signerAddress;
 
             // 3. Verify
@@ -104,8 +104,8 @@ export function useWalletAuth(): WalletAuth {
             // Success - redirect
             router.push('/dashboard');
 
-        } catch (err: any) {
-            setError(err.message || 'Login failed');
+        } catch (err: unknown) {
+            setError((err as Error).message || 'Login failed');
             console.error(err);
         } finally {
             setIsConnecting(false);

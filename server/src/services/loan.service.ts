@@ -1,9 +1,10 @@
 import { ForbiddenError, NotFoundError, ValidationError } from "../config/errors";
 import { contracts } from "../config/contracts";
+import { xdr } from "@stellar/stellar-sdk";
 import contractService from "./contract.service";
 import { prisma } from "./database.service";
 import websocketService from "./websocket.service";
-import { Prisma } from "@prisma/client";
+import { env } from "../config/env";
 import Decimal from "decimal.js";
 
 const MIN_COLLATERAL_RATIO = new Decimal("1.5");
@@ -86,7 +87,7 @@ export class LoanService {
             throw new ValidationError("LOAN_CONTRACT_ID not configured");
         }
 
-        const xdr = await contractService.buildContractInvokeXDR(
+        const xdrResult = await contractService.buildContractInvokeXDR(
             loanContractId,
             "issue_loan",
             [
@@ -95,8 +96,9 @@ export class LoanService {
                 amount.toString(),
                 collateralAmt.toString(),
                 payload.assetCode || "USDC",
-                payload.escrowAddress || null,
-            ]
+                payload.escrowAddress || "",
+            ].map(v => xdr.ScVal.scvString(v)),
+            env.feePayer.publicKey
         );
 
         const loan = await db.loan.create({
@@ -104,10 +106,9 @@ export class LoanService {
                 borrowerId,
                 lenderId,
                 amount: amount.toString(),
-                collateralAmt: collateralAmt.toString(),
                 assetCode: payload.assetCode || "USDC",
-                escrowAddress: payload.escrowAddress || null,
                 status: "PENDING",
+                interestRate: "0",
             },
         });
 
@@ -115,7 +116,7 @@ export class LoanService {
 
         return {
             loanId: loan.id,
-            xdr,
+            xdr: xdrResult,
             loan,
         };
     }

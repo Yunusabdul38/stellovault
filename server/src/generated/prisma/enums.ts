@@ -9,15 +9,6 @@
 * 🟢 You can import this file directly.
 */
 
-export const WalletStatus = {
-  ACTIVE: 'ACTIVE',
-  UNLINKED: 'UNLINKED',
-  SUSPENDED: 'SUSPENDED'
-} as const
-
-export type WalletStatus = (typeof WalletStatus)[keyof typeof WalletStatus]
-
-
 export const Role = {
   USER: 'USER',
   MERCHANT: 'MERCHANT',
@@ -25,6 +16,35 @@ export const Role = {
 } as const
 
 export type Role = (typeof Role)[keyof typeof Role]
+
+
+export const ChallengePurpose = {
+  LOGIN: 'LOGIN',
+  LINK_WALLET: 'LINK_WALLET'
+} as const
+
+export type ChallengePurpose = (typeof ChallengePurpose)[keyof typeof ChallengePurpose]
+
+
+export const EscrowStatus = {
+  PENDING: 'PENDING',
+  FUNDED: 'FUNDED',
+  RELEASED: 'RELEASED',
+  REFUNDED: 'REFUNDED',
+  DISPUTED: 'DISPUTED',
+  CANCELLED: 'CANCELLED'
+} as const
+
+export type EscrowStatus = (typeof EscrowStatus)[keyof typeof EscrowStatus]
+
+
+export const CollateralStatus = {
+  LOCKED: 'LOCKED',
+  RELEASED: 'RELEASED',
+  LIQUIDATED: 'LIQUIDATED'
+} as const
+
+export type CollateralStatus = (typeof CollateralStatus)[keyof typeof CollateralStatus]
 
 
 export const LoanStatus = {
@@ -37,9 +57,20 @@ export const LoanStatus = {
 export type LoanStatus = (typeof LoanStatus)[keyof typeof LoanStatus]
 
 
-export const ChallengePurpose = {
-  LOGIN: 'LOGIN',
-  LINK_WALLET: 'LINK_WALLET'
+export const GovernanceStatus = {
+  OPEN: 'OPEN',
+  PASSED: 'PASSED',
+  REJECTED: 'REJECTED',
+  EXECUTED: 'EXECUTED'
 } as const
 
-export type ChallengePurpose = (typeof ChallengePurpose)[keyof typeof ChallengePurpose]
+export type GovernanceStatus = (typeof GovernanceStatus)[keyof typeof GovernanceStatus]
+
+
+export const DisputeStatus = {
+  OPEN: 'OPEN',
+  RESOLVED: 'RESOLVED',
+  CANCELLED: 'CANCELLED'
+} as const
+
+export type DisputeStatus = (typeof DisputeStatus)[keyof typeof DisputeStatus]

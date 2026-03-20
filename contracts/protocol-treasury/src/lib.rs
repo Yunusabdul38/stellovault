@@ -126,9 +126,7 @@ impl ProtocolTreasury {
 
         let key = (symbol_short!("fees"), asset.clone());
         let current: i128 = env.storage().persistent().get(&key).unwrap_or(0);
-        env.storage()
-            .persistent()
-            .set(&key, &(current + amount));
+        env.storage().persistent().set(&key, &(current + amount));
 
         env.events()
             .publish((symbol_short!("fee_dep"),), (asset, amount));

@@ -61,8 +61,8 @@ export const useRiskScore = (walletAddress: string | null) => {
         };
 
         setData(mockData);
-      } catch (err: any) {
-        setError(err.message || 'Failed to fetch risk score');
+      } catch (err: unknown) {
+        setError((err as Error).message || 'Failed to fetch risk score');
         setData(null);
       } finally {
         setLoading(false);

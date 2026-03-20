@@ -28,22 +28,24 @@ export type AggregateLoan = {
 
 export type LoanAvgAggregateOutputType = {
   amount: runtime.Decimal | null
-  collateralAmt: runtime.Decimal | null
+  interestRate: runtime.Decimal | null
 }
 
 export type LoanSumAggregateOutputType = {
   amount: runtime.Decimal | null
-  collateralAmt: runtime.Decimal | null
+  interestRate: runtime.Decimal | null
 }
 
 export type LoanMinAggregateOutputType = {
   id: string | null
   borrowerId: string | null
+  lenderId: string | null
   amount: runtime.Decimal | null
   assetCode: string | null
+  interestRate: runtime.Decimal | null
   status: $Enums.LoanStatus | null
-  collateralAmt: runtime.Decimal | null
-  escrowAddress: string | null
+  dueDate: Date | null
+  collateralId: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -51,11 +53,13 @@ export type LoanMinAggregateOutputType = {
 export type LoanMaxAggregateOutputType = {
   id: string | null
   borrowerId: string | null
+  lenderId: string | null
   amount: runtime.Decimal | null
   assetCode: string | null
+  interestRate: runtime.Decimal | null
   status: $Enums.LoanStatus | null
-  collateralAmt: runtime.Decimal | null
-  escrowAddress: string | null
+  dueDate: Date | null
+  collateralId: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -63,11 +67,13 @@ export type LoanMaxAggregateOutputType = {
 export type LoanCountAggregateOutputType = {
   id: number
   borrowerId: number
+  lenderId: number
   amount: number
   assetCode: number
+  interestRate: number
   status: number
-  collateralAmt: number
-  escrowAddress: number
+  dueDate: number
+  collateralId: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -76,22 +82,24 @@ export type LoanCountAggregateOutputType = {
 
 export type LoanAvgAggregateInputType = {
   amount?: true
-  collateralAmt?: true
+  interestRate?: true
 }
 
 export type LoanSumAggregateInputType = {
   amount?: true
-  collateralAmt?: true
+  interestRate?: true
 }
 
 export type LoanMinAggregateInputType = {
   id?: true
   borrowerId?: true
+  lenderId?: true
   amount?: true
   assetCode?: true
+  interestRate?: true
   status?: true
-  collateralAmt?: true
-  escrowAddress?: true
+  dueDate?: true
+  collateralId?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -99,11 +107,13 @@ export type LoanMinAggregateInputType = {
 export type LoanMaxAggregateInputType = {
   id?: true
   borrowerId?: true
+  lenderId?: true
   amount?: true
   assetCode?: true
+  interestRate?: true
   status?: true
-  collateralAmt?: true
-  escrowAddress?: true
+  dueDate?: true
+  collateralId?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -111,11 +121,13 @@ export type LoanMaxAggregateInputType = {
 export type LoanCountAggregateInputType = {
   id?: true
   borrowerId?: true
+  lenderId?: true
   amount?: true
   assetCode?: true
+  interestRate?: true
   status?: true
-  collateralAmt?: true
-  escrowAddress?: true
+  dueDate?: true
+  collateralId?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -210,11 +222,13 @@ export type LoanGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalArg
 export type LoanGroupByOutputType = {
   id: string
   borrowerId: string
+  lenderId: string | null
   amount: runtime.Decimal
   assetCode: string
+  interestRate: runtime.Decimal
   status: $Enums.LoanStatus
-  collateralAmt: runtime.Decimal
-  escrowAddress: string | null
+  dueDate: Date | null
+  collateralId: string | null
   createdAt: Date
   updatedAt: Date
   _count: LoanCountAggregateOutputType | null
@@ -245,27 +259,37 @@ export type LoanWhereInput = {
   NOT?: Prisma.LoanWhereInput | Prisma.LoanWhereInput[]
   id?: Prisma.StringFilter<"Loan"> | string
   borrowerId?: Prisma.StringFilter<"Loan"> | string
+  lenderId?: Prisma.StringNullableFilter<"Loan"> | string | null
   amount?: Prisma.DecimalFilter<"Loan"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   assetCode?: Prisma.StringFilter<"Loan"> | string
+  interestRate?: Prisma.DecimalFilter<"Loan"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: Prisma.EnumLoanStatusFilter<"Loan"> | $Enums.LoanStatus
-  collateralAmt?: Prisma.DecimalFilter<"Loan"> | runtime.Decimal | runtime.DecimalJsLike | number | string
-  escrowAddress?: Prisma.StringNullableFilter<"Loan"> | string | null
+  dueDate?: Prisma.DateTimeNullableFilter<"Loan"> | Date | string | null
+  collateralId?: Prisma.StringNullableFilter<"Loan"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Loan"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Loan"> | Date | string
   borrower?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  lender?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
+  collateral?: Prisma.XOR<Prisma.CollateralNullableScalarRelationFilter, Prisma.CollateralWhereInput> | null
+  repayments?: Prisma.RepaymentListRelationFilter
 }
 
 export type LoanOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   borrowerId?: Prisma.SortOrder
+  lenderId?: Prisma.SortOrderInput | Prisma.SortOrder
   amount?: Prisma.SortOrder
   assetCode?: Prisma.SortOrder
+  interestRate?: Prisma.SortOrder
   status?: Prisma.SortOrder
-  collateralAmt?: Prisma.SortOrder
-  escrowAddress?: Prisma.SortOrderInput | Prisma.SortOrder
+  dueDate?: Prisma.SortOrderInput | Prisma.SortOrder
+  collateralId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   borrower?: Prisma.UserOrderByWithRelationInput
+  lender?: Prisma.UserOrderByWithRelationInput
+  collateral?: Prisma.CollateralOrderByWithRelationInput
+  repayments?: Prisma.RepaymentOrderByRelationAggregateInput
 }
 
 export type LoanWhereUniqueInput = Prisma.AtLeast<{
@@ -274,24 +298,31 @@ export type LoanWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.LoanWhereInput[]
   NOT?: Prisma.LoanWhereInput | Prisma.LoanWhereInput[]
   borrowerId?: Prisma.StringFilter<"Loan"> | string
+  lenderId?: Prisma.StringNullableFilter<"Loan"> | string | null
   amount?: Prisma.DecimalFilter<"Loan"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   assetCode?: Prisma.StringFilter<"Loan"> | string
+  interestRate?: Prisma.DecimalFilter<"Loan"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: Prisma.EnumLoanStatusFilter<"Loan"> | $Enums.LoanStatus
-  collateralAmt?: Prisma.DecimalFilter<"Loan"> | runtime.Decimal | runtime.DecimalJsLike | number | string
-  escrowAddress?: Prisma.StringNullableFilter<"Loan"> | string | null
+  dueDate?: Prisma.DateTimeNullableFilter<"Loan"> | Date | string | null
+  collateralId?: Prisma.StringNullableFilter<"Loan"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Loan"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Loan"> | Date | string
   borrower?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  lender?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
+  collateral?: Prisma.XOR<Prisma.CollateralNullableScalarRelationFilter, Prisma.CollateralWhereInput> | null
+  repayments?: Prisma.RepaymentListRelationFilter
 }, "id">
 
 export type LoanOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   borrowerId?: Prisma.SortOrder
+  lenderId?: Prisma.SortOrderInput | Prisma.SortOrder
   amount?: Prisma.SortOrder
   assetCode?: Prisma.SortOrder
+  interestRate?: Prisma.SortOrder
   status?: Prisma.SortOrder
-  collateralAmt?: Prisma.SortOrder
-  escrowAddress?: Prisma.SortOrderInput | Prisma.SortOrder
+  dueDate?: Prisma.SortOrderInput | Prisma.SortOrder
+  collateralId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.LoanCountOrderByAggregateInput
@@ -307,11 +338,13 @@ export type LoanScalarWhereWithAggregatesInput = {
   NOT?: Prisma.LoanScalarWhereWithAggregatesInput | Prisma.LoanScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"Loan"> | string
   borrowerId?: Prisma.StringWithAggregatesFilter<"Loan"> | string
+  lenderId?: Prisma.StringNullableWithAggregatesFilter<"Loan"> | string | null
   amount?: Prisma.DecimalWithAggregatesFilter<"Loan"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   assetCode?: Prisma.StringWithAggregatesFilter<"Loan"> | string
+  interestRate?: Prisma.DecimalWithAggregatesFilter<"Loan"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: Prisma.EnumLoanStatusWithAggregatesFilter<"Loan"> | $Enums.LoanStatus
-  collateralAmt?: Prisma.DecimalWithAggregatesFilter<"Loan"> | runtime.Decimal | runtime.DecimalJsLike | number | string
-  escrowAddress?: Prisma.StringNullableWithAggregatesFilter<"Loan"> | string | null
+  dueDate?: Prisma.DateTimeNullableWithAggregatesFilter<"Loan"> | Date | string | null
+  collateralId?: Prisma.StringNullableWithAggregatesFilter<"Loan"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Loan"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Loan"> | Date | string
 }
@@ -320,58 +353,72 @@ export type LoanCreateInput = {
   id?: string
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   assetCode?: string
+  interestRate: runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: $Enums.LoanStatus
-  collateralAmt: runtime.Decimal | runtime.DecimalJsLike | number | string
-  escrowAddress?: string | null
+  dueDate?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  borrower: Prisma.UserCreateNestedOneWithoutLoansInput
+  borrower: Prisma.UserCreateNestedOneWithoutBorrowedLoansInput
+  lender?: Prisma.UserCreateNestedOneWithoutLentLoansInput
+  collateral?: Prisma.CollateralCreateNestedOneWithoutLoansInput
+  repayments?: Prisma.RepaymentCreateNestedManyWithoutLoanInput
 }
 
 export type LoanUncheckedCreateInput = {
   id?: string
   borrowerId: string
+  lenderId?: string | null
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   assetCode?: string
+  interestRate: runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: $Enums.LoanStatus
-  collateralAmt: runtime.Decimal | runtime.DecimalJsLike | number | string
-  escrowAddress?: string | null
+  dueDate?: Date | string | null
+  collateralId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  repayments?: Prisma.RepaymentUncheckedCreateNestedManyWithoutLoanInput
 }
 
 export type LoanUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   assetCode?: Prisma.StringFieldUpdateOperationsInput | string
+  interestRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: Prisma.EnumLoanStatusFieldUpdateOperationsInput | $Enums.LoanStatus
-  collateralAmt?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  escrowAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  borrower?: Prisma.UserUpdateOneRequiredWithoutLoansNestedInput
+  borrower?: Prisma.UserUpdateOneRequiredWithoutBorrowedLoansNestedInput
+  lender?: Prisma.UserUpdateOneWithoutLentLoansNestedInput
+  collateral?: Prisma.CollateralUpdateOneWithoutLoansNestedInput
+  repayments?: Prisma.RepaymentUpdateManyWithoutLoanNestedInput
 }
 
 export type LoanUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   borrowerId?: Prisma.StringFieldUpdateOperationsInput | string
+  lenderId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   assetCode?: Prisma.StringFieldUpdateOperationsInput | string
+  interestRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: Prisma.EnumLoanStatusFieldUpdateOperationsInput | $Enums.LoanStatus
-  collateralAmt?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  escrowAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  collateralId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  repayments?: Prisma.RepaymentUncheckedUpdateManyWithoutLoanNestedInput
 }
 
 export type LoanCreateManyInput = {
   id?: string
   borrowerId: string
+  lenderId?: string | null
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   assetCode?: string
+  interestRate: runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: $Enums.LoanStatus
-  collateralAmt: runtime.Decimal | runtime.DecimalJsLike | number | string
-  escrowAddress?: string | null
+  dueDate?: Date | string | null
+  collateralId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -380,9 +427,9 @@ export type LoanUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   assetCode?: Prisma.StringFieldUpdateOperationsInput | string
+  interestRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: Prisma.EnumLoanStatusFieldUpdateOperationsInput | $Enums.LoanStatus
-  collateralAmt?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  escrowAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -390,11 +437,13 @@ export type LoanUpdateManyMutationInput = {
 export type LoanUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   borrowerId?: Prisma.StringFieldUpdateOperationsInput | string
+  lenderId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   assetCode?: Prisma.StringFieldUpdateOperationsInput | string
+  interestRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: Prisma.EnumLoanStatusFieldUpdateOperationsInput | $Enums.LoanStatus
-  collateralAmt?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  escrowAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  collateralId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -412,28 +461,32 @@ export type LoanOrderByRelationAggregateInput = {
 export type LoanCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   borrowerId?: Prisma.SortOrder
+  lenderId?: Prisma.SortOrder
   amount?: Prisma.SortOrder
   assetCode?: Prisma.SortOrder
+  interestRate?: Prisma.SortOrder
   status?: Prisma.SortOrder
-  collateralAmt?: Prisma.SortOrder
-  escrowAddress?: Prisma.SortOrder
+  dueDate?: Prisma.SortOrder
+  collateralId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
 export type LoanAvgOrderByAggregateInput = {
   amount?: Prisma.SortOrder
-  collateralAmt?: Prisma.SortOrder
+  interestRate?: Prisma.SortOrder
 }
 
 export type LoanMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   borrowerId?: Prisma.SortOrder
+  lenderId?: Prisma.SortOrder
   amount?: Prisma.SortOrder
   assetCode?: Prisma.SortOrder
+  interestRate?: Prisma.SortOrder
   status?: Prisma.SortOrder
-  collateralAmt?: Prisma.SortOrder
-  escrowAddress?: Prisma.SortOrder
+  dueDate?: Prisma.SortOrder
+  collateralId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -441,18 +494,25 @@ export type LoanMaxOrderByAggregateInput = {
 export type LoanMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   borrowerId?: Prisma.SortOrder
+  lenderId?: Prisma.SortOrder
   amount?: Prisma.SortOrder
   assetCode?: Prisma.SortOrder
+  interestRate?: Prisma.SortOrder
   status?: Prisma.SortOrder
-  collateralAmt?: Prisma.SortOrder
-  escrowAddress?: Prisma.SortOrder
+  dueDate?: Prisma.SortOrder
+  collateralId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
 export type LoanSumOrderByAggregateInput = {
   amount?: Prisma.SortOrder
-  collateralAmt?: Prisma.SortOrder
+  interestRate?: Prisma.SortOrder
+}
+
+export type LoanScalarRelationFilter = {
+  is?: Prisma.LoanWhereInput
+  isNot?: Prisma.LoanWhereInput
 }
 
 export type LoanCreateNestedManyWithoutBorrowerInput = {
@@ -462,10 +522,24 @@ export type LoanCreateNestedManyWithoutBorrowerInput = {
   connect?: Prisma.LoanWhereUniqueInput | Prisma.LoanWhereUniqueInput[]
 }
 
+export type LoanCreateNestedManyWithoutLenderInput = {
+  create?: Prisma.XOR<Prisma.LoanCreateWithoutLenderInput, Prisma.LoanUncheckedCreateWithoutLenderInput> | Prisma.LoanCreateWithoutLenderInput[] | Prisma.LoanUncheckedCreateWithoutLenderInput[]
+  connectOrCreate?: Prisma.LoanCreateOrConnectWithoutLenderInput | Prisma.LoanCreateOrConnectWithoutLenderInput[]
+  createMany?: Prisma.LoanCreateManyLenderInputEnvelope
+  connect?: Prisma.LoanWhereUniqueInput | Prisma.LoanWhereUniqueInput[]
+}
+
 export type LoanUncheckedCreateNestedManyWithoutBorrowerInput = {
   create?: Prisma.XOR<Prisma.LoanCreateWithoutBorrowerInput, Prisma.LoanUncheckedCreateWithoutBorrowerInput> | Prisma.LoanCreateWithoutBorrowerInput[] | Prisma.LoanUncheckedCreateWithoutBorrowerInput[]
   connectOrCreate?: Prisma.LoanCreateOrConnectWithoutBorrowerInput | Prisma.LoanCreateOrConnectWithoutBorrowerInput[]
   createMany?: Prisma.LoanCreateManyBorrowerInputEnvelope
+  connect?: Prisma.LoanWhereUniqueInput | Prisma.LoanWhereUniqueInput[]
+}
+
+export type LoanUncheckedCreateNestedManyWithoutLenderInput = {
+  create?: Prisma.XOR<Prisma.LoanCreateWithoutLenderInput, Prisma.LoanUncheckedCreateWithoutLenderInput> | Prisma.LoanCreateWithoutLenderInput[] | Prisma.LoanUncheckedCreateWithoutLenderInput[]
+  connectOrCreate?: Prisma.LoanCreateOrConnectWithoutLenderInput | Prisma.LoanCreateOrConnectWithoutLenderInput[]
+  createMany?: Prisma.LoanCreateManyLenderInputEnvelope
   connect?: Prisma.LoanWhereUniqueInput | Prisma.LoanWhereUniqueInput[]
 }
 
@@ -483,6 +557,20 @@ export type LoanUpdateManyWithoutBorrowerNestedInput = {
   deleteMany?: Prisma.LoanScalarWhereInput | Prisma.LoanScalarWhereInput[]
 }
 
+export type LoanUpdateManyWithoutLenderNestedInput = {
+  create?: Prisma.XOR<Prisma.LoanCreateWithoutLenderInput, Prisma.LoanUncheckedCreateWithoutLenderInput> | Prisma.LoanCreateWithoutLenderInput[] | Prisma.LoanUncheckedCreateWithoutLenderInput[]
+  connectOrCreate?: Prisma.LoanCreateOrConnectWithoutLenderInput | Prisma.LoanCreateOrConnectWithoutLenderInput[]
+  upsert?: Prisma.LoanUpsertWithWhereUniqueWithoutLenderInput | Prisma.LoanUpsertWithWhereUniqueWithoutLenderInput[]
+  createMany?: Prisma.LoanCreateManyLenderInputEnvelope
+  set?: Prisma.LoanWhereUniqueInput | Prisma.LoanWhereUniqueInput[]
+  disconnect?: Prisma.LoanWhereUniqueInput | Prisma.LoanWhereUniqueInput[]
+  delete?: Prisma.LoanWhereUniqueInput | Prisma.LoanWhereUniqueInput[]
+  connect?: Prisma.LoanWhereUniqueInput | Prisma.LoanWhereUniqueInput[]
+  update?: Prisma.LoanUpdateWithWhereUniqueWithoutLenderInput | Prisma.LoanUpdateWithWhereUniqueWithoutLenderInput[]
+  updateMany?: Prisma.LoanUpdateManyWithWhereWithoutLenderInput | Prisma.LoanUpdateManyWithWhereWithoutLenderInput[]
+  deleteMany?: Prisma.LoanScalarWhereInput | Prisma.LoanScalarWhereInput[]
+}
+
 export type LoanUncheckedUpdateManyWithoutBorrowerNestedInput = {
   create?: Prisma.XOR<Prisma.LoanCreateWithoutBorrowerInput, Prisma.LoanUncheckedCreateWithoutBorrowerInput> | Prisma.LoanCreateWithoutBorrowerInput[] | Prisma.LoanUncheckedCreateWithoutBorrowerInput[]
   connectOrCreate?: Prisma.LoanCreateOrConnectWithoutBorrowerInput | Prisma.LoanCreateOrConnectWithoutBorrowerInput[]
@@ -497,38 +585,106 @@ export type LoanUncheckedUpdateManyWithoutBorrowerNestedInput = {
   deleteMany?: Prisma.LoanScalarWhereInput | Prisma.LoanScalarWhereInput[]
 }
 
-export type DecimalFieldUpdateOperationsInput = {
-  set?: runtime.Decimal | runtime.DecimalJsLike | number | string
-  increment?: runtime.Decimal | runtime.DecimalJsLike | number | string
-  decrement?: runtime.Decimal | runtime.DecimalJsLike | number | string
-  multiply?: runtime.Decimal | runtime.DecimalJsLike | number | string
-  divide?: runtime.Decimal | runtime.DecimalJsLike | number | string
+export type LoanUncheckedUpdateManyWithoutLenderNestedInput = {
+  create?: Prisma.XOR<Prisma.LoanCreateWithoutLenderInput, Prisma.LoanUncheckedCreateWithoutLenderInput> | Prisma.LoanCreateWithoutLenderInput[] | Prisma.LoanUncheckedCreateWithoutLenderInput[]
+  connectOrCreate?: Prisma.LoanCreateOrConnectWithoutLenderInput | Prisma.LoanCreateOrConnectWithoutLenderInput[]
+  upsert?: Prisma.LoanUpsertWithWhereUniqueWithoutLenderInput | Prisma.LoanUpsertWithWhereUniqueWithoutLenderInput[]
+  createMany?: Prisma.LoanCreateManyLenderInputEnvelope
+  set?: Prisma.LoanWhereUniqueInput | Prisma.LoanWhereUniqueInput[]
+  disconnect?: Prisma.LoanWhereUniqueInput | Prisma.LoanWhereUniqueInput[]
+  delete?: Prisma.LoanWhereUniqueInput | Prisma.LoanWhereUniqueInput[]
+  connect?: Prisma.LoanWhereUniqueInput | Prisma.LoanWhereUniqueInput[]
+  update?: Prisma.LoanUpdateWithWhereUniqueWithoutLenderInput | Prisma.LoanUpdateWithWhereUniqueWithoutLenderInput[]
+  updateMany?: Prisma.LoanUpdateManyWithWhereWithoutLenderInput | Prisma.LoanUpdateManyWithWhereWithoutLenderInput[]
+  deleteMany?: Prisma.LoanScalarWhereInput | Prisma.LoanScalarWhereInput[]
+}
+
+export type LoanCreateNestedManyWithoutCollateralInput = {
+  create?: Prisma.XOR<Prisma.LoanCreateWithoutCollateralInput, Prisma.LoanUncheckedCreateWithoutCollateralInput> | Prisma.LoanCreateWithoutCollateralInput[] | Prisma.LoanUncheckedCreateWithoutCollateralInput[]
+  connectOrCreate?: Prisma.LoanCreateOrConnectWithoutCollateralInput | Prisma.LoanCreateOrConnectWithoutCollateralInput[]
+  createMany?: Prisma.LoanCreateManyCollateralInputEnvelope
+  connect?: Prisma.LoanWhereUniqueInput | Prisma.LoanWhereUniqueInput[]
+}
+
+export type LoanUncheckedCreateNestedManyWithoutCollateralInput = {
+  create?: Prisma.XOR<Prisma.LoanCreateWithoutCollateralInput, Prisma.LoanUncheckedCreateWithoutCollateralInput> | Prisma.LoanCreateWithoutCollateralInput[] | Prisma.LoanUncheckedCreateWithoutCollateralInput[]
+  connectOrCreate?: Prisma.LoanCreateOrConnectWithoutCollateralInput | Prisma.LoanCreateOrConnectWithoutCollateralInput[]
+  createMany?: Prisma.LoanCreateManyCollateralInputEnvelope
+  connect?: Prisma.LoanWhereUniqueInput | Prisma.LoanWhereUniqueInput[]
+}
+
+export type LoanUpdateManyWithoutCollateralNestedInput = {
+  create?: Prisma.XOR<Prisma.LoanCreateWithoutCollateralInput, Prisma.LoanUncheckedCreateWithoutCollateralInput> | Prisma.LoanCreateWithoutCollateralInput[] | Prisma.LoanUncheckedCreateWithoutCollateralInput[]
+  connectOrCreate?: Prisma.LoanCreateOrConnectWithoutCollateralInput | Prisma.LoanCreateOrConnectWithoutCollateralInput[]
+  upsert?: Prisma.LoanUpsertWithWhereUniqueWithoutCollateralInput | Prisma.LoanUpsertWithWhereUniqueWithoutCollateralInput[]
+  createMany?: Prisma.LoanCreateManyCollateralInputEnvelope
+  set?: Prisma.LoanWhereUniqueInput | Prisma.LoanWhereUniqueInput[]
+  disconnect?: Prisma.LoanWhereUniqueInput | Prisma.LoanWhereUniqueInput[]
+  delete?: Prisma.LoanWhereUniqueInput | Prisma.LoanWhereUniqueInput[]
+  connect?: Prisma.LoanWhereUniqueInput | Prisma.LoanWhereUniqueInput[]
+  update?: Prisma.LoanUpdateWithWhereUniqueWithoutCollateralInput | Prisma.LoanUpdateWithWhereUniqueWithoutCollateralInput[]
+  updateMany?: Prisma.LoanUpdateManyWithWhereWithoutCollateralInput | Prisma.LoanUpdateManyWithWhereWithoutCollateralInput[]
+  deleteMany?: Prisma.LoanScalarWhereInput | Prisma.LoanScalarWhereInput[]
+}
+
+export type LoanUncheckedUpdateManyWithoutCollateralNestedInput = {
+  create?: Prisma.XOR<Prisma.LoanCreateWithoutCollateralInput, Prisma.LoanUncheckedCreateWithoutCollateralInput> | Prisma.LoanCreateWithoutCollateralInput[] | Prisma.LoanUncheckedCreateWithoutCollateralInput[]
+  connectOrCreate?: Prisma.LoanCreateOrConnectWithoutCollateralInput | Prisma.LoanCreateOrConnectWithoutCollateralInput[]
+  upsert?: Prisma.LoanUpsertWithWhereUniqueWithoutCollateralInput | Prisma.LoanUpsertWithWhereUniqueWithoutCollateralInput[]
+  createMany?: Prisma.LoanCreateManyCollateralInputEnvelope
+  set?: Prisma.LoanWhereUniqueInput | Prisma.LoanWhereUniqueInput[]
+  disconnect?: Prisma.LoanWhereUniqueInput | Prisma.LoanWhereUniqueInput[]
+  delete?: Prisma.LoanWhereUniqueInput | Prisma.LoanWhereUniqueInput[]
+  connect?: Prisma.LoanWhereUniqueInput | Prisma.LoanWhereUniqueInput[]
+  update?: Prisma.LoanUpdateWithWhereUniqueWithoutCollateralInput | Prisma.LoanUpdateWithWhereUniqueWithoutCollateralInput[]
+  updateMany?: Prisma.LoanUpdateManyWithWhereWithoutCollateralInput | Prisma.LoanUpdateManyWithWhereWithoutCollateralInput[]
+  deleteMany?: Prisma.LoanScalarWhereInput | Prisma.LoanScalarWhereInput[]
 }
 
 export type EnumLoanStatusFieldUpdateOperationsInput = {
   set?: $Enums.LoanStatus
 }
 
+export type LoanCreateNestedOneWithoutRepaymentsInput = {
+  create?: Prisma.XOR<Prisma.LoanCreateWithoutRepaymentsInput, Prisma.LoanUncheckedCreateWithoutRepaymentsInput>
+  connectOrCreate?: Prisma.LoanCreateOrConnectWithoutRepaymentsInput
+  connect?: Prisma.LoanWhereUniqueInput
+}
+
+export type LoanUpdateOneRequiredWithoutRepaymentsNestedInput = {
+  create?: Prisma.XOR<Prisma.LoanCreateWithoutRepaymentsInput, Prisma.LoanUncheckedCreateWithoutRepaymentsInput>
+  connectOrCreate?: Prisma.LoanCreateOrConnectWithoutRepaymentsInput
+  upsert?: Prisma.LoanUpsertWithoutRepaymentsInput
+  connect?: Prisma.LoanWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.LoanUpdateToOneWithWhereWithoutRepaymentsInput, Prisma.LoanUpdateWithoutRepaymentsInput>, Prisma.LoanUncheckedUpdateWithoutRepaymentsInput>
+}
+
 export type LoanCreateWithoutBorrowerInput = {
   id?: string
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   assetCode?: string
+  interestRate: runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: $Enums.LoanStatus
-  collateralAmt: runtime.Decimal | runtime.DecimalJsLike | number | string
-  escrowAddress?: string | null
+  dueDate?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  lender?: Prisma.UserCreateNestedOneWithoutLentLoansInput
+  collateral?: Prisma.CollateralCreateNestedOneWithoutLoansInput
+  repayments?: Prisma.RepaymentCreateNestedManyWithoutLoanInput
 }
 
 export type LoanUncheckedCreateWithoutBorrowerInput = {
   id?: string
+  lenderId?: string | null
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   assetCode?: string
+  interestRate: runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: $Enums.LoanStatus
-  collateralAmt: runtime.Decimal | runtime.DecimalJsLike | number | string
-  escrowAddress?: string | null
+  dueDate?: Date | string | null
+  collateralId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  repayments?: Prisma.RepaymentUncheckedCreateNestedManyWithoutLoanInput
 }
 
 export type LoanCreateOrConnectWithoutBorrowerInput = {
@@ -538,6 +694,44 @@ export type LoanCreateOrConnectWithoutBorrowerInput = {
 
 export type LoanCreateManyBorrowerInputEnvelope = {
   data: Prisma.LoanCreateManyBorrowerInput | Prisma.LoanCreateManyBorrowerInput[]
+  skipDuplicates?: boolean
+}
+
+export type LoanCreateWithoutLenderInput = {
+  id?: string
+  amount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  assetCode?: string
+  interestRate: runtime.Decimal | runtime.DecimalJsLike | number | string
+  status?: $Enums.LoanStatus
+  dueDate?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  borrower: Prisma.UserCreateNestedOneWithoutBorrowedLoansInput
+  collateral?: Prisma.CollateralCreateNestedOneWithoutLoansInput
+  repayments?: Prisma.RepaymentCreateNestedManyWithoutLoanInput
+}
+
+export type LoanUncheckedCreateWithoutLenderInput = {
+  id?: string
+  borrowerId: string
+  amount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  assetCode?: string
+  interestRate: runtime.Decimal | runtime.DecimalJsLike | number | string
+  status?: $Enums.LoanStatus
+  dueDate?: Date | string | null
+  collateralId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  repayments?: Prisma.RepaymentUncheckedCreateNestedManyWithoutLoanInput
+}
+
+export type LoanCreateOrConnectWithoutLenderInput = {
+  where: Prisma.LoanWhereUniqueInput
+  create: Prisma.XOR<Prisma.LoanCreateWithoutLenderInput, Prisma.LoanUncheckedCreateWithoutLenderInput>
+}
+
+export type LoanCreateManyLenderInputEnvelope = {
+  data: Prisma.LoanCreateManyLenderInput | Prisma.LoanCreateManyLenderInput[]
   skipDuplicates?: boolean
 }
 
@@ -563,22 +757,181 @@ export type LoanScalarWhereInput = {
   NOT?: Prisma.LoanScalarWhereInput | Prisma.LoanScalarWhereInput[]
   id?: Prisma.StringFilter<"Loan"> | string
   borrowerId?: Prisma.StringFilter<"Loan"> | string
+  lenderId?: Prisma.StringNullableFilter<"Loan"> | string | null
   amount?: Prisma.DecimalFilter<"Loan"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   assetCode?: Prisma.StringFilter<"Loan"> | string
+  interestRate?: Prisma.DecimalFilter<"Loan"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: Prisma.EnumLoanStatusFilter<"Loan"> | $Enums.LoanStatus
-  collateralAmt?: Prisma.DecimalFilter<"Loan"> | runtime.Decimal | runtime.DecimalJsLike | number | string
-  escrowAddress?: Prisma.StringNullableFilter<"Loan"> | string | null
+  dueDate?: Prisma.DateTimeNullableFilter<"Loan"> | Date | string | null
+  collateralId?: Prisma.StringNullableFilter<"Loan"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Loan"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Loan"> | Date | string
 }
 
-export type LoanCreateManyBorrowerInput = {
+export type LoanUpsertWithWhereUniqueWithoutLenderInput = {
+  where: Prisma.LoanWhereUniqueInput
+  update: Prisma.XOR<Prisma.LoanUpdateWithoutLenderInput, Prisma.LoanUncheckedUpdateWithoutLenderInput>
+  create: Prisma.XOR<Prisma.LoanCreateWithoutLenderInput, Prisma.LoanUncheckedCreateWithoutLenderInput>
+}
+
+export type LoanUpdateWithWhereUniqueWithoutLenderInput = {
+  where: Prisma.LoanWhereUniqueInput
+  data: Prisma.XOR<Prisma.LoanUpdateWithoutLenderInput, Prisma.LoanUncheckedUpdateWithoutLenderInput>
+}
+
+export type LoanUpdateManyWithWhereWithoutLenderInput = {
+  where: Prisma.LoanScalarWhereInput
+  data: Prisma.XOR<Prisma.LoanUpdateManyMutationInput, Prisma.LoanUncheckedUpdateManyWithoutLenderInput>
+}
+
+export type LoanCreateWithoutCollateralInput = {
   id?: string
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   assetCode?: string
+  interestRate: runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: $Enums.LoanStatus
-  collateralAmt: runtime.Decimal | runtime.DecimalJsLike | number | string
-  escrowAddress?: string | null
+  dueDate?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  borrower: Prisma.UserCreateNestedOneWithoutBorrowedLoansInput
+  lender?: Prisma.UserCreateNestedOneWithoutLentLoansInput
+  repayments?: Prisma.RepaymentCreateNestedManyWithoutLoanInput
+}
+
+export type LoanUncheckedCreateWithoutCollateralInput = {
+  id?: string
+  borrowerId: string
+  lenderId?: string | null
+  amount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  assetCode?: string
+  interestRate: runtime.Decimal | runtime.DecimalJsLike | number | string
+  status?: $Enums.LoanStatus
+  dueDate?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  repayments?: Prisma.RepaymentUncheckedCreateNestedManyWithoutLoanInput
+}
+
+export type LoanCreateOrConnectWithoutCollateralInput = {
+  where: Prisma.LoanWhereUniqueInput
+  create: Prisma.XOR<Prisma.LoanCreateWithoutCollateralInput, Prisma.LoanUncheckedCreateWithoutCollateralInput>
+}
+
+export type LoanCreateManyCollateralInputEnvelope = {
+  data: Prisma.LoanCreateManyCollateralInput | Prisma.LoanCreateManyCollateralInput[]
+  skipDuplicates?: boolean
+}
+
+export type LoanUpsertWithWhereUniqueWithoutCollateralInput = {
+  where: Prisma.LoanWhereUniqueInput
+  update: Prisma.XOR<Prisma.LoanUpdateWithoutCollateralInput, Prisma.LoanUncheckedUpdateWithoutCollateralInput>
+  create: Prisma.XOR<Prisma.LoanCreateWithoutCollateralInput, Prisma.LoanUncheckedCreateWithoutCollateralInput>
+}
+
+export type LoanUpdateWithWhereUniqueWithoutCollateralInput = {
+  where: Prisma.LoanWhereUniqueInput
+  data: Prisma.XOR<Prisma.LoanUpdateWithoutCollateralInput, Prisma.LoanUncheckedUpdateWithoutCollateralInput>
+}
+
+export type LoanUpdateManyWithWhereWithoutCollateralInput = {
+  where: Prisma.LoanScalarWhereInput
+  data: Prisma.XOR<Prisma.LoanUpdateManyMutationInput, Prisma.LoanUncheckedUpdateManyWithoutCollateralInput>
+}
+
+export type LoanCreateWithoutRepaymentsInput = {
+  id?: string
+  amount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  assetCode?: string
+  interestRate: runtime.Decimal | runtime.DecimalJsLike | number | string
+  status?: $Enums.LoanStatus
+  dueDate?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  borrower: Prisma.UserCreateNestedOneWithoutBorrowedLoansInput
+  lender?: Prisma.UserCreateNestedOneWithoutLentLoansInput
+  collateral?: Prisma.CollateralCreateNestedOneWithoutLoansInput
+}
+
+export type LoanUncheckedCreateWithoutRepaymentsInput = {
+  id?: string
+  borrowerId: string
+  lenderId?: string | null
+  amount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  assetCode?: string
+  interestRate: runtime.Decimal | runtime.DecimalJsLike | number | string
+  status?: $Enums.LoanStatus
+  dueDate?: Date | string | null
+  collateralId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type LoanCreateOrConnectWithoutRepaymentsInput = {
+  where: Prisma.LoanWhereUniqueInput
+  create: Prisma.XOR<Prisma.LoanCreateWithoutRepaymentsInput, Prisma.LoanUncheckedCreateWithoutRepaymentsInput>
+}
+
+export type LoanUpsertWithoutRepaymentsInput = {
+  update: Prisma.XOR<Prisma.LoanUpdateWithoutRepaymentsInput, Prisma.LoanUncheckedUpdateWithoutRepaymentsInput>
+  create: Prisma.XOR<Prisma.LoanCreateWithoutRepaymentsInput, Prisma.LoanUncheckedCreateWithoutRepaymentsInput>
+  where?: Prisma.LoanWhereInput
+}
+
+export type LoanUpdateToOneWithWhereWithoutRepaymentsInput = {
+  where?: Prisma.LoanWhereInput
+  data: Prisma.XOR<Prisma.LoanUpdateWithoutRepaymentsInput, Prisma.LoanUncheckedUpdateWithoutRepaymentsInput>
+}
+
+export type LoanUpdateWithoutRepaymentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  assetCode?: Prisma.StringFieldUpdateOperationsInput | string
+  interestRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  status?: Prisma.EnumLoanStatusFieldUpdateOperationsInput | $Enums.LoanStatus
+  dueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  borrower?: Prisma.UserUpdateOneRequiredWithoutBorrowedLoansNestedInput
+  lender?: Prisma.UserUpdateOneWithoutLentLoansNestedInput
+  collateral?: Prisma.CollateralUpdateOneWithoutLoansNestedInput
+}
+
+export type LoanUncheckedUpdateWithoutRepaymentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  borrowerId?: Prisma.StringFieldUpdateOperationsInput | string
+  lenderId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  assetCode?: Prisma.StringFieldUpdateOperationsInput | string
+  interestRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  status?: Prisma.EnumLoanStatusFieldUpdateOperationsInput | $Enums.LoanStatus
+  dueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  collateralId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type LoanCreateManyBorrowerInput = {
+  id?: string
+  lenderId?: string | null
+  amount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  assetCode?: string
+  interestRate: runtime.Decimal | runtime.DecimalJsLike | number | string
+  status?: $Enums.LoanStatus
+  dueDate?: Date | string | null
+  collateralId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type LoanCreateManyLenderInput = {
+  id?: string
+  borrowerId: string
+  amount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  assetCode?: string
+  interestRate: runtime.Decimal | runtime.DecimalJsLike | number | string
+  status?: $Enums.LoanStatus
+  dueDate?: Date | string | null
+  collateralId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -587,112 +940,273 @@ export type LoanUpdateWithoutBorrowerInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   assetCode?: Prisma.StringFieldUpdateOperationsInput | string
+  interestRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: Prisma.EnumLoanStatusFieldUpdateOperationsInput | $Enums.LoanStatus
-  collateralAmt?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  escrowAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lender?: Prisma.UserUpdateOneWithoutLentLoansNestedInput
+  collateral?: Prisma.CollateralUpdateOneWithoutLoansNestedInput
+  repayments?: Prisma.RepaymentUpdateManyWithoutLoanNestedInput
 }
 
 export type LoanUncheckedUpdateWithoutBorrowerInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  lenderId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   assetCode?: Prisma.StringFieldUpdateOperationsInput | string
+  interestRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: Prisma.EnumLoanStatusFieldUpdateOperationsInput | $Enums.LoanStatus
-  collateralAmt?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  escrowAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  collateralId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  repayments?: Prisma.RepaymentUncheckedUpdateManyWithoutLoanNestedInput
 }
 
 export type LoanUncheckedUpdateManyWithoutBorrowerInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  lenderId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   assetCode?: Prisma.StringFieldUpdateOperationsInput | string
+  interestRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: Prisma.EnumLoanStatusFieldUpdateOperationsInput | $Enums.LoanStatus
-  collateralAmt?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  escrowAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  collateralId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
+export type LoanUpdateWithoutLenderInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  assetCode?: Prisma.StringFieldUpdateOperationsInput | string
+  interestRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  status?: Prisma.EnumLoanStatusFieldUpdateOperationsInput | $Enums.LoanStatus
+  dueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  borrower?: Prisma.UserUpdateOneRequiredWithoutBorrowedLoansNestedInput
+  collateral?: Prisma.CollateralUpdateOneWithoutLoansNestedInput
+  repayments?: Prisma.RepaymentUpdateManyWithoutLoanNestedInput
+}
+
+export type LoanUncheckedUpdateWithoutLenderInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  borrowerId?: Prisma.StringFieldUpdateOperationsInput | string
+  amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  assetCode?: Prisma.StringFieldUpdateOperationsInput | string
+  interestRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  status?: Prisma.EnumLoanStatusFieldUpdateOperationsInput | $Enums.LoanStatus
+  dueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  collateralId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  repayments?: Prisma.RepaymentUncheckedUpdateManyWithoutLoanNestedInput
+}
+
+export type LoanUncheckedUpdateManyWithoutLenderInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  borrowerId?: Prisma.StringFieldUpdateOperationsInput | string
+  amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  assetCode?: Prisma.StringFieldUpdateOperationsInput | string
+  interestRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  status?: Prisma.EnumLoanStatusFieldUpdateOperationsInput | $Enums.LoanStatus
+  dueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  collateralId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type LoanCreateManyCollateralInput = {
+  id?: string
+  borrowerId: string
+  lenderId?: string | null
+  amount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  assetCode?: string
+  interestRate: runtime.Decimal | runtime.DecimalJsLike | number | string
+  status?: $Enums.LoanStatus
+  dueDate?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type LoanUpdateWithoutCollateralInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  assetCode?: Prisma.StringFieldUpdateOperationsInput | string
+  interestRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  status?: Prisma.EnumLoanStatusFieldUpdateOperationsInput | $Enums.LoanStatus
+  dueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  borrower?: Prisma.UserUpdateOneRequiredWithoutBorrowedLoansNestedInput
+  lender?: Prisma.UserUpdateOneWithoutLentLoansNestedInput
+  repayments?: Prisma.RepaymentUpdateManyWithoutLoanNestedInput
+}
+
+export type LoanUncheckedUpdateWithoutCollateralInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  borrowerId?: Prisma.StringFieldUpdateOperationsInput | string
+  lenderId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  assetCode?: Prisma.StringFieldUpdateOperationsInput | string
+  interestRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  status?: Prisma.EnumLoanStatusFieldUpdateOperationsInput | $Enums.LoanStatus
+  dueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  repayments?: Prisma.RepaymentUncheckedUpdateManyWithoutLoanNestedInput
+}
+
+export type LoanUncheckedUpdateManyWithoutCollateralInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  borrowerId?: Prisma.StringFieldUpdateOperationsInput | string
+  lenderId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  assetCode?: Prisma.StringFieldUpdateOperationsInput | string
+  interestRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  status?: Prisma.EnumLoanStatusFieldUpdateOperationsInput | $Enums.LoanStatus
+  dueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+
+/**
+ * Count Type LoanCountOutputType
+ */
+
+export type LoanCountOutputType = {
+  repayments: number
+}
+
+export type LoanCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  repayments?: boolean | LoanCountOutputTypeCountRepaymentsArgs
+}
+
+/**
+ * LoanCountOutputType without action
+ */
+export type LoanCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the LoanCountOutputType
+   */
+  select?: Prisma.LoanCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * LoanCountOutputType without action
+ */
+export type LoanCountOutputTypeCountRepaymentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.RepaymentWhereInput
+}
 
 
 export type LoanSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   borrowerId?: boolean
+  lenderId?: boolean
   amount?: boolean
   assetCode?: boolean
+  interestRate?: boolean
   status?: boolean
-  collateralAmt?: boolean
-  escrowAddress?: boolean
+  dueDate?: boolean
+  collateralId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   borrower?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  lender?: boolean | Prisma.Loan$lenderArgs<ExtArgs>
+  collateral?: boolean | Prisma.Loan$collateralArgs<ExtArgs>
+  repayments?: boolean | Prisma.Loan$repaymentsArgs<ExtArgs>
+  _count?: boolean | Prisma.LoanCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["loan"]>
 
 export type LoanSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   borrowerId?: boolean
+  lenderId?: boolean
   amount?: boolean
   assetCode?: boolean
+  interestRate?: boolean
   status?: boolean
-  collateralAmt?: boolean
-  escrowAddress?: boolean
+  dueDate?: boolean
+  collateralId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   borrower?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  lender?: boolean | Prisma.Loan$lenderArgs<ExtArgs>
+  collateral?: boolean | Prisma.Loan$collateralArgs<ExtArgs>
 }, ExtArgs["result"]["loan"]>
 
 export type LoanSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   borrowerId?: boolean
+  lenderId?: boolean
   amount?: boolean
   assetCode?: boolean
+  interestRate?: boolean
   status?: boolean
-  collateralAmt?: boolean
-  escrowAddress?: boolean
+  dueDate?: boolean
+  collateralId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   borrower?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  lender?: boolean | Prisma.Loan$lenderArgs<ExtArgs>
+  collateral?: boolean | Prisma.Loan$collateralArgs<ExtArgs>
 }, ExtArgs["result"]["loan"]>
 
 export type LoanSelectScalar = {
   id?: boolean
   borrowerId?: boolean
+  lenderId?: boolean
   amount?: boolean
   assetCode?: boolean
+  interestRate?: boolean
   status?: boolean
-  collateralAmt?: boolean
-  escrowAddress?: boolean
+  dueDate?: boolean
+  collateralId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type LoanOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "borrowerId" | "amount" | "assetCode" | "status" | "collateralAmt" | "escrowAddress" | "createdAt" | "updatedAt", ExtArgs["result"]["loan"]>
+export type LoanOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "borrowerId" | "lenderId" | "amount" | "assetCode" | "interestRate" | "status" | "dueDate" | "collateralId" | "createdAt" | "updatedAt", ExtArgs["result"]["loan"]>
 export type LoanInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   borrower?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  lender?: boolean | Prisma.Loan$lenderArgs<ExtArgs>
+  collateral?: boolean | Prisma.Loan$collateralArgs<ExtArgs>
+  repayments?: boolean | Prisma.Loan$repaymentsArgs<ExtArgs>
+  _count?: boolean | Prisma.LoanCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type LoanIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   borrower?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  lender?: boolean | Prisma.Loan$lenderArgs<ExtArgs>
+  collateral?: boolean | Prisma.Loan$collateralArgs<ExtArgs>
 }
 export type LoanIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   borrower?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  lender?: boolean | Prisma.Loan$lenderArgs<ExtArgs>
+  collateral?: boolean | Prisma.Loan$collateralArgs<ExtArgs>
 }
 
 export type $LoanPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Loan"
   objects: {
     borrower: Prisma.$UserPayload<ExtArgs>
+    lender: Prisma.$UserPayload<ExtArgs> | null
+    collateral: Prisma.$CollateralPayload<ExtArgs> | null
+    repayments: Prisma.$RepaymentPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     borrowerId: string
+    lenderId: string | null
     amount: runtime.Decimal
     assetCode: string
+    interestRate: runtime.Decimal
     status: $Enums.LoanStatus
-    collateralAmt: runtime.Decimal
-    escrowAddress: string | null
+    dueDate: Date | null
+    collateralId: string | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["loan"]>
@@ -1090,6 +1604,9 @@ readonly fields: LoanFieldRefs;
 export interface Prisma__LoanClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   borrower<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  lender<T extends Prisma.Loan$lenderArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Loan$lenderArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  collateral<T extends Prisma.Loan$collateralArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Loan$collateralArgs<ExtArgs>>): Prisma.Prisma__CollateralClient<runtime.Types.Result.GetResult<Prisma.$CollateralPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  repayments<T extends Prisma.Loan$repaymentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Loan$repaymentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RepaymentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1121,11 +1638,13 @@ export interface Prisma__LoanClient<T, Null = never, ExtArgs extends runtime.Typ
 export interface LoanFieldRefs {
   readonly id: Prisma.FieldRef<"Loan", 'String'>
   readonly borrowerId: Prisma.FieldRef<"Loan", 'String'>
+  readonly lenderId: Prisma.FieldRef<"Loan", 'String'>
   readonly amount: Prisma.FieldRef<"Loan", 'Decimal'>
   readonly assetCode: Prisma.FieldRef<"Loan", 'String'>
+  readonly interestRate: Prisma.FieldRef<"Loan", 'Decimal'>
   readonly status: Prisma.FieldRef<"Loan", 'LoanStatus'>
-  readonly collateralAmt: Prisma.FieldRef<"Loan", 'Decimal'>
-  readonly escrowAddress: Prisma.FieldRef<"Loan", 'String'>
+  readonly dueDate: Prisma.FieldRef<"Loan", 'DateTime'>
+  readonly collateralId: Prisma.FieldRef<"Loan", 'String'>
   readonly createdAt: Prisma.FieldRef<"Loan", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Loan", 'DateTime'>
 }
@@ -1521,6 +2040,68 @@ export type LoanDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Internal
    * Limit how many Loans to delete.
    */
   limit?: number
+}
+
+/**
+ * Loan.lender
+ */
+export type Loan$lenderArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the User
+   */
+  select?: Prisma.UserSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the User
+   */
+  omit?: Prisma.UserOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserInclude<ExtArgs> | null
+  where?: Prisma.UserWhereInput
+}
+
+/**
+ * Loan.collateral
+ */
+export type Loan$collateralArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Collateral
+   */
+  select?: Prisma.CollateralSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Collateral
+   */
+  omit?: Prisma.CollateralOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CollateralInclude<ExtArgs> | null
+  where?: Prisma.CollateralWhereInput
+}
+
+/**
+ * Loan.repayments
+ */
+export type Loan$repaymentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Repayment
+   */
+  select?: Prisma.RepaymentSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Repayment
+   */
+  omit?: Prisma.RepaymentOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.RepaymentInclude<ExtArgs> | null
+  where?: Prisma.RepaymentWhereInput
+  orderBy?: Prisma.RepaymentOrderByWithRelationInput | Prisma.RepaymentOrderByWithRelationInput[]
+  cursor?: Prisma.RepaymentWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.RepaymentScalarFieldEnum | Prisma.RepaymentScalarFieldEnum[]
 }
 
 /**

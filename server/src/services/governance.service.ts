@@ -1,8 +1,7 @@
-import { PrismaClient, Prisma } from "@prisma/client";
+import { prisma } from "../config/prisma";
+import { Prisma } from "../generated/prisma/client";
 import contractService from "./contract.service";
 import eventMonitoringService from "./event-monitoring.service";
-
-const prisma = new PrismaClient();
 
 // Governance Status enum (matching schema.prisma)
 export enum GovernanceStatus {
@@ -182,6 +181,36 @@ export class GovernanceService {
         });
 
         return { vote };
+    }
+
+    /**
+     * Get current on-chain governance parameters (stub).
+     */
+    async getParameters() {
+        return {
+            quorumThreshold: "0.5",
+            votingPeriodDays: 7,
+            executionDelayDays: 2,
+        };
+    }
+
+    /**
+     * Get audit log of governance actions.
+     */
+    async getAuditLog(options?: { limit?: number; offset?: number }) {
+        const limit = options?.limit ?? 50;
+        const offset = options?.offset ?? 0;
+
+        const [offChain, total] = await Promise.all([
+            (prisma as any).governanceAuditLog.findMany({
+                orderBy: { createdAt: "desc" },
+                skip: offset,
+                take: limit,
+            }),
+            (prisma as any).governanceAuditLog.count(),
+        ]);
+
+        return { offChain, onChain: [], total, limit, offset };
     }
 
     /**

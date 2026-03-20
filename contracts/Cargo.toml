@@ -1,0 +1,13 @@
+[workspace]
+members = [
+    "collateral-registry",
+    "escrow-manager",
+    "example",
+    "governance",
+    "loan-management",
+    "oracle-adapter",
+    "protocol-treasury",
+    "reputation-registry",
+    "risk-assessment",
+]
+resolver = "2"

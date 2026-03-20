@@ -1,12 +1,13 @@
 import { prisma } from "../config/prisma";
 import jwt, { SignOptions } from "jsonwebtoken";
 import { Keypair } from "@stellar/stellar-sdk";
-import { v4 as uuidv4 } from "uuid";
+import { randomBytes, randomUUID } from "crypto";
 import { env } from "../config/env";
 import { JWT_CONFIG, TokenPayload } from "../config/jwt";
 import { UnauthorizedError, ValidationError, NotFoundError, ConflictError } from "../config/errors";
 
-const CHALLENGE_MESSAGE_PREFIX = "stellovault:login:";
+const CHALLENGE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+
 const CHALLENGE_PURPOSE = {
     LOGIN: "LOGIN",
     LINK_WALLET: "LINK_WALLET",
@@ -25,6 +26,8 @@ function isValidStellarAddress(address: string): boolean {
     }
 }
 
+type DbClient = typeof prisma | Parameters<Parameters<typeof prisma.$transaction>[0]>[0];
+
 export class AuthService {
     // --- PRIVATE HELPERS ---
 
@@ -35,8 +38,14 @@ export class AuthService {
         return address.trim().toUpperCase();
     }
 
-    private async lockUserRow(tx: any, userId: string): Promise<void> {
-        const rows = await tx.$queryRaw`SELECT id FROM "User" WHERE id = ${userId} FOR UPDATE`;
+    private assertValidStellarAddress(address: string): void {
+        if (!isValidStellarAddress(address)) {
+            throw new ValidationError("Invalid Stellar wallet address");
+        }
+    }
+
+    private async lockUserRow(tx: DbClient, userId: string): Promise<void> {
+        const rows = await (tx as any).$queryRaw`SELECT id FROM "User" WHERE id = ${userId} FOR UPDATE`;
         if (!Array.isArray(rows) || rows.length === 0) {
             throw new NotFoundError("User not found");
         }
@@ -45,39 +54,6 @@ export class AuthService {
     private buildChallengeMessage(purpose: ChallengePurpose, nonce: string): string {
         const action = purpose === CHALLENGE_PURPOSE.LOGIN ? "login" : "link-wallet";
         return `stellovault:${action}:${nonce}`;
-    }
-
-    // --- ORIGINAL FUNCTIONS (KEPT AS IS) ---
-
-    async generateChallenge(walletAddress: string, purpose: ChallengePurpose = "LOGIN", userId?: string) {
-        if (!isValidStellarAddress(walletAddress)) {
-            throw new ValidationError("Invalid Stellar wallet address");
-        }
-
-        const nonce = uuidv4();
-        const expiresAt = new Date(Date.now() + JWT_CONFIG.CHALLENGE_EXPIRY_SECONDS * 1000);
-
-        // Atomic wallet + user creation
-        const wallet = await prisma.wallet.upsert({
-            where: { stellarAddress: walletAddress },
-            update: {},
-            create: {
-                user: { create: { name: null } },
-                stellarAddress: walletAddress,
-                isPrimary: true,
-                status: "ACTIVE",
-            },
-            include: { user: true },
-        });
-
-<<<<<<< HEAD
-        const challenge = await prisma.challenge.create({
-=======
-    private async lockUserRow(tx: DbClient, userId: string): Promise<void> {
-        const rows = await tx.$queryRaw`SELECT id FROM "User" WHERE id = ${userId} FOR UPDATE`;
-        if (!Array.isArray(rows) || rows.length === 0) {
-            throw new NotFoundError("User not found");
-        }
     }
 
     async generateChallenge(
@@ -94,44 +70,54 @@ export class AuthService {
 
         const nonce = randomBytes(24).toString("hex");
         const expiresAt = new Date(Date.now() + CHALLENGE_TTL_MS);
-        const db = prisma;
 
-        await db.walletChallenge.create({
->>>>>>> upstream/master
+        // Upsert user/wallet for login flow
+        const wallet = await prisma.wallet.upsert({
+            where: { address: normalizedAddress },
+            update: {},
+            create: {
+                user: { create: { stellarAddress: normalizedAddress, name: null } },
+                address: normalizedAddress,
+                isPrimary: true,
+            },
+            include: { user: true },
+        });
+
+        await prisma.walletChallenge.create({
             data: {
-                userId: wallet.userId,
-                walletId: wallet.id,
+                userId: userId ?? wallet.userId,
+                walletAddress: normalizedAddress,
                 nonce,
                 expiresAt,
+                purpose,
             },
         });
 
-        return { nonce: challenge.nonce, expiresAt: challenge.expiresAt };
+        const message = this.buildChallengeMessage(purpose, nonce);
+        return { nonce, expiresAt, message };
     }
 
     async verifySignature(walletAddress: string, nonce: string, signature: string, ipAddress?: string, userAgent?: string) {
-        if (!isValidStellarAddress(walletAddress)) {
-            throw new ValidationError("Invalid Stellar wallet address");
-        }
+        const normalizedAddress = this.normalizeAddress(walletAddress);
+        this.assertValidStellarAddress(normalizedAddress);
 
-        const challenge = await prisma.challenge.findFirst({
+        const challenge = await prisma.walletChallenge.findFirst({
             where: {
                 nonce,
                 consumed: false,
                 expiresAt: { gt: new Date() },
-                wallet: { stellarAddress: walletAddress },
+                walletAddress: normalizedAddress,
             },
-            include: { wallet: true },
         });
 
         if (!challenge) {
             throw new UnauthorizedError("Invalid or expired challenge");
         }
 
-        const messageToSign = CHALLENGE_MESSAGE_PREFIX + nonce;
+        const messageToSign = this.buildChallengeMessage(CHALLENGE_PURPOSE.LOGIN, nonce);
 
         try {
-            const keypair = Keypair.fromPublicKey(walletAddress);
+            const keypair = Keypair.fromPublicKey(normalizedAddress);
             const isValid = keypair.verify(
                 Buffer.from(messageToSign, "utf-8"),
                 Buffer.from(signature, "base64")
@@ -145,7 +131,7 @@ export class AuthService {
             throw new UnauthorizedError("Signature verification failed");
         }
 
-        await prisma.challenge.update({
+        await prisma.walletChallenge.update({
             where: { id: challenge.id },
             data: { consumed: true },
         });
@@ -158,26 +144,23 @@ export class AuthService {
             throw new NotFoundError("User not found for this wallet");
         }
 
-        const jti = uuidv4();
+        const jti = randomUUID();
         const accessTokenExpiresIn = env.jwt.accessExpiresIn || JWT_CONFIG.ACCESS_TOKEN_EXPIRY;
         const refreshTokenExpiresIn = env.jwt.refreshExpiresIn || JWT_CONFIG.REFRESH_TOKEN_EXPIRY;
         const refreshExpirySeconds = this.parseExpiry(refreshTokenExpiresIn);
 
-        const session = await prisma.session.create({
+        await prisma.session.create({
             data: {
                 userId: user.id,
-                walletId: challenge.walletId,
                 jti,
-                ipAddress: ipAddress || null,
-                userAgent: userAgent || null,
-                expiresAt: new Date(Date.now() + refreshExpirySeconds * 1000),
+                revokedAt: null,
             },
         });
 
         const tokenPayload: TokenPayload = {
             userId: user.id,
             jti,
-            walletAddress: walletAddress,
+            walletAddress: normalizedAddress,
         };
 
         return {
@@ -187,12 +170,11 @@ export class AuthService {
                 id: user.id,
                 name: user.name,
                 role: user.role,
-                stellarAddress: walletAddress,
+                stellarAddress: normalizedAddress,
             },
         };
     }
 
-<<<<<<< HEAD
     async refreshTokens(refreshToken: string) {
         let payload: TokenPayload;
         try {
@@ -203,10 +185,9 @@ export class AuthService {
 
         const session = await prisma.session.findUnique({
             where: { jti: payload.jti },
-            include: { wallet: true },
         });
 
-        if (!session || session.revoked || session.expiresAt < new Date()) {
+        if (!session || session.revokedAt !== null) {
             throw new UnauthorizedError("Session revoked or expired");
         }
 
@@ -219,41 +200,27 @@ export class AuthService {
         }
 
         const accessTokenExpiresIn = env.jwt.accessExpiresIn || JWT_CONFIG.ACCESS_TOKEN_EXPIRY;
+        const newJti = randomUUID();
+
         const tokenPayload: TokenPayload = {
             userId: user.id,
-            jti: session.jti,
-            walletAddress: session.wallet.stellarAddress,
+            jti: newJti,
+            walletAddress: payload.walletAddress,
         };
 
         const newAccessToken = jwt.sign(tokenPayload, env.jwt.accessSecret, { expiresIn: accessTokenExpiresIn } as SignOptions);
-        const newJti = uuidv4();
-        const newRefreshTokenPayload: TokenPayload = {
-            userId: user.id,
-            jti: newJti,
-            walletAddress: session.wallet.stellarAddress,
-        };
+        const newRefreshToken = jwt.sign(tokenPayload, env.jwt.refreshSecret, { expiresIn: JWT_CONFIG.REFRESH_TOKEN_EXPIRY } as SignOptions);
 
-        const newRefreshToken = jwt.sign(
-            newRefreshTokenPayload,
-            env.jwt.refreshSecret,
-            { expiresIn: JWT_CONFIG.REFRESH_TOKEN_EXPIRY } as SignOptions
-        );
-        // 6️⃣ Revoke old session
-        await prisma.$transaction(async (tx: any) => {
-
+        await prisma.$transaction(async (tx) => {
             await tx.session.update({
                 where: { jti: session.jti },
-                data: { revoked: true },
+                data: { revokedAt: new Date() },
             });
-
-            // 7️⃣ Create new session for rotated refresh token
             await tx.session.create({
                 data: {
                     jti: newJti,
                     userId: user.id,
-                    walletId: session.walletId,
-                    revoked: false,
-                    expiresAt: new Date(Date.now() + Number(JWT_CONFIG.REFRESH_TOKEN_EXPIRY) * 1000),
+                    revokedAt: null,
                 },
             });
         });
@@ -265,7 +232,7 @@ export class AuthService {
                 id: user.id,
                 name: user.name,
                 role: user.role,
-                stellarAddress: session.wallet.stellarAddress,
+                stellarAddress: payload.walletAddress,
             },
         };
     }
@@ -276,21 +243,14 @@ export class AuthService {
 
         await prisma.session.update({
             where: { jti },
-            data: { revoked: true, revokedAt: new Date() },
-=======
-    async getUserWallets(userId: string) {
-        const db = prisma;
-        return db.wallet.findMany({
-            where: { userId },
-            orderBy: [{ isPrimary: "desc" }, { createdAt: "asc" }],
->>>>>>> upstream/master
+            data: { revokedAt: new Date() },
         });
     }
 
     async revokeAllSessions(userId: string): Promise<number> {
         const result = await prisma.session.updateMany({
-            where: { userId, revoked: false },
-            data: { revoked: true, revokedAt: new Date() },
+            where: { userId, revokedAt: null },
+            data: { revokedAt: new Date() },
         });
         return result.count;
     }
@@ -307,10 +267,9 @@ export class AuthService {
                 wallets: {
                     select: {
                         id: true,
-                        stellarAddress: true,
+                        address: true,
                         isPrimary: true,
                         label: true,
-                        status: true,
                         createdAt: true,
                         updatedAt: true,
                     },
@@ -322,60 +281,36 @@ export class AuthService {
     }
 
     async getUserWallets(userId: string) {
-        const user = await prisma.user.findUnique({
-            where: { id: userId },
-            select: {
-                wallets: {
-                    select: {
-                        id: true,
-                        stellarAddress: true,
-                        isPrimary: true,
-                        label: true,
-                        status: true,
-                        createdAt: true,
-                        updatedAt: true,
-                    },
-                },
-            },
+        const db = prisma;
+        return db.wallet.findMany({
+            where: { userId },
+            orderBy: [{ isPrimary: "desc" }, { createdAt: "asc" }],
         });
-        if (!user) throw new NotFoundError("User not found");
-        return user.wallets.map((wallet: { id: string; stellarAddress: string; isPrimary: any; label: any; status: any; createdAt: any; updatedAt: any; }) => ({
-            id: wallet.id,
-            address: wallet.stellarAddress,
-            primary: wallet.isPrimary,
-            label: wallet.label,
-            status: wallet.status,
-            createdAt: wallet.createdAt,
-            updatedAt: wallet.updatedAt,
-        }));
     }
 
-    // --- ADDED NEW FUNCTIONS (FOR WALLET MANAGEMENT) ---
+    // --- WALLET MANAGEMENT ---
 
     async linkWallet(userId: string, address: string, nonce: string, signature: string, label?: string) {
         const normalizedAddress = this.normalizeAddress(address);
-        if (!isValidStellarAddress(normalizedAddress)) {
-            throw new ValidationError("Invalid Stellar wallet address");
-        }
+        this.assertValidStellarAddress(normalizedAddress);
 
-        return await prisma.$transaction(async (tx: any) => {
+        return await prisma.$transaction(async (tx) => {
             await this.lockUserRow(tx, userId);
 
             const existingWallet = await tx.wallet.findUnique({
-                where: { stellarAddress: normalizedAddress },
+                where: { address: normalizedAddress },
             });
             if (existingWallet) {
                 throw new ConflictError("Wallet address is already linked");
             }
 
-            // Verify the LINK_WALLET challenge
-            const challenge = await tx.challenge.findFirst({
+            const challenge = await tx.walletChallenge.findFirst({
                 where: {
                     nonce,
                     consumed: false,
                     expiresAt: { gt: new Date() },
-                    userId: userId
-                }
+                    userId,
+                },
             });
 
             if (!challenge) throw new UnauthorizedError("Invalid or expired linking challenge");
@@ -386,7 +321,7 @@ export class AuthService {
 
             if (!isValid) throw new UnauthorizedError("Invalid signature");
 
-            await tx.challenge.update({ where: { id: challenge.id }, data: { consumed: true } });
+            await tx.walletChallenge.update({ where: { id: challenge.id }, data: { consumed: true } });
 
             const walletCount = await tx.wallet.count({ where: { userId } });
             const isPrimary = walletCount === 0;
@@ -394,17 +329,16 @@ export class AuthService {
             return await tx.wallet.create({
                 data: {
                     userId,
-                    stellarAddress: normalizedAddress,
+                    address: normalizedAddress,
                     label: label?.trim() || null,
                     isPrimary,
-                    status: "ACTIVE"
                 },
             });
         });
     }
 
     async unlinkWallet(userId: string, walletId: string): Promise<void> {
-        await prisma.$transaction(async (tx: any) => {
+        await prisma.$transaction(async (tx) => {
             await this.lockUserRow(tx, userId);
 
             const wallets = await tx.wallet.findMany({
@@ -412,12 +346,12 @@ export class AuthService {
                 orderBy: { createdAt: "asc" },
             });
 
-            const wallet = wallets.find((item: any) => item.id === walletId);
+            const wallet = wallets.find((item) => item.id === walletId);
             if (!wallet) throw new NotFoundError("Wallet not found");
             if (wallets.length <= 1) throw new ValidationError("Cannot unlink the only wallet");
 
             if (wallet.isPrimary) {
-                const replacement = wallets.find((item: any) => item.id !== walletId);
+                const replacement = wallets.find((item) => item.id !== walletId);
                 if (!replacement) {
                     throw new ValidationError("No backup wallet found to promote to primary");
                 }
@@ -432,7 +366,7 @@ export class AuthService {
     }
 
     async setPrimaryWallet(userId: string, walletId: string) {
-        return prisma.$transaction(async (tx: any) => {
+        return prisma.$transaction(async (tx) => {
             await this.lockUserRow(tx, userId);
 
             const wallet = await tx.wallet.findFirst({
@@ -453,16 +387,11 @@ export class AuthService {
     }
 
     async updateWalletLabel(userId: string, walletId: string, label?: string) {
-<<<<<<< HEAD
-        const wallet = await prisma.wallet.findFirst({ where: { id: walletId, userId } });
-        if (!wallet) throw new NotFoundError("Wallet not found");
-=======
         const db = prisma;
         const wallet = await db.wallet.findFirst({ where: { id: walletId, userId } });
         if (!wallet) {
             throw new NotFoundError("Wallet not found");
         }
->>>>>>> upstream/master
 
         return prisma.wallet.update({
             where: { id: walletId },
@@ -470,7 +399,7 @@ export class AuthService {
         });
     }
 
-       private parseExpiry(expiryStr: string): number {
+    private parseExpiry(expiryStr: string): number {
         const match = expiryStr.match(/^(\d+)([smhd])$/);
         if (!match) {
             console.warn(`Unrecognized expiry format "${expiryStr}", defaulting to 900s`);

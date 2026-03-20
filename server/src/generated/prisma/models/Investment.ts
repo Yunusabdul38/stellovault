@@ -36,23 +36,29 @@ export type InvestmentSumAggregateOutputType = {
 
 export type InvestmentMinAggregateOutputType = {
   id: string | null
-  investorId: string | null
+  userId: string | null
   amount: runtime.Decimal | null
+  assetCode: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type InvestmentMaxAggregateOutputType = {
   id: string | null
-  investorId: string | null
+  userId: string | null
   amount: runtime.Decimal | null
+  assetCode: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type InvestmentCountAggregateOutputType = {
   id: number
-  investorId: number
+  userId: number
   amount: number
+  assetCode: number
   createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -67,23 +73,29 @@ export type InvestmentSumAggregateInputType = {
 
 export type InvestmentMinAggregateInputType = {
   id?: true
-  investorId?: true
+  userId?: true
   amount?: true
+  assetCode?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type InvestmentMaxAggregateInputType = {
   id?: true
-  investorId?: true
+  userId?: true
   amount?: true
+  assetCode?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type InvestmentCountAggregateInputType = {
   id?: true
-  investorId?: true
+  userId?: true
   amount?: true
+  assetCode?: true
   createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -175,9 +187,11 @@ export type InvestmentGroupByArgs<ExtArgs extends runtime.Types.Extensions.Inter
 
 export type InvestmentGroupByOutputType = {
   id: string
-  investorId: string
+  userId: string
   amount: runtime.Decimal
+  assetCode: string
   createdAt: Date
+  updatedAt: Date
   _count: InvestmentCountAggregateOutputType | null
   _avg: InvestmentAvgAggregateOutputType | null
   _sum: InvestmentSumAggregateOutputType | null
@@ -205,18 +219,22 @@ export type InvestmentWhereInput = {
   OR?: Prisma.InvestmentWhereInput[]
   NOT?: Prisma.InvestmentWhereInput | Prisma.InvestmentWhereInput[]
   id?: Prisma.StringFilter<"Investment"> | string
-  investorId?: Prisma.StringFilter<"Investment"> | string
+  userId?: Prisma.StringFilter<"Investment"> | string
   amount?: Prisma.DecimalFilter<"Investment"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  assetCode?: Prisma.StringFilter<"Investment"> | string
   createdAt?: Prisma.DateTimeFilter<"Investment"> | Date | string
-  investor?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  updatedAt?: Prisma.DateTimeFilter<"Investment"> | Date | string
+  user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }
 
 export type InvestmentOrderByWithRelationInput = {
   id?: Prisma.SortOrder
-  investorId?: Prisma.SortOrder
+  userId?: Prisma.SortOrder
   amount?: Prisma.SortOrder
+  assetCode?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
-  investor?: Prisma.UserOrderByWithRelationInput
+  updatedAt?: Prisma.SortOrder
+  user?: Prisma.UserOrderByWithRelationInput
 }
 
 export type InvestmentWhereUniqueInput = Prisma.AtLeast<{
@@ -224,17 +242,21 @@ export type InvestmentWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.InvestmentWhereInput | Prisma.InvestmentWhereInput[]
   OR?: Prisma.InvestmentWhereInput[]
   NOT?: Prisma.InvestmentWhereInput | Prisma.InvestmentWhereInput[]
-  investorId?: Prisma.StringFilter<"Investment"> | string
+  userId?: Prisma.StringFilter<"Investment"> | string
   amount?: Prisma.DecimalFilter<"Investment"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  assetCode?: Prisma.StringFilter<"Investment"> | string
   createdAt?: Prisma.DateTimeFilter<"Investment"> | Date | string
-  investor?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  updatedAt?: Prisma.DateTimeFilter<"Investment"> | Date | string
+  user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }, "id">
 
 export type InvestmentOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
-  investorId?: Prisma.SortOrder
+  userId?: Prisma.SortOrder
   amount?: Prisma.SortOrder
+  assetCode?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.InvestmentCountOrderByAggregateInput
   _avg?: Prisma.InvestmentAvgOrderByAggregateInput
   _max?: Prisma.InvestmentMaxOrderByAggregateInput
@@ -247,57 +269,73 @@ export type InvestmentScalarWhereWithAggregatesInput = {
   OR?: Prisma.InvestmentScalarWhereWithAggregatesInput[]
   NOT?: Prisma.InvestmentScalarWhereWithAggregatesInput | Prisma.InvestmentScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"Investment"> | string
-  investorId?: Prisma.StringWithAggregatesFilter<"Investment"> | string
+  userId?: Prisma.StringWithAggregatesFilter<"Investment"> | string
   amount?: Prisma.DecimalWithAggregatesFilter<"Investment"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  assetCode?: Prisma.StringWithAggregatesFilter<"Investment"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Investment"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Investment"> | Date | string
 }
 
 export type InvestmentCreateInput = {
   id?: string
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  assetCode?: string
   createdAt?: Date | string
-  investor: Prisma.UserCreateNestedOneWithoutInvestmentsInput
+  updatedAt?: Date | string
+  user: Prisma.UserCreateNestedOneWithoutInvestmentsInput
 }
 
 export type InvestmentUncheckedCreateInput = {
   id?: string
-  investorId: string
+  userId: string
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  assetCode?: string
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type InvestmentUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  assetCode?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  investor?: Prisma.UserUpdateOneRequiredWithoutInvestmentsNestedInput
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  user?: Prisma.UserUpdateOneRequiredWithoutInvestmentsNestedInput
 }
 
 export type InvestmentUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  investorId?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  assetCode?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type InvestmentCreateManyInput = {
   id?: string
-  investorId: string
+  userId: string
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  assetCode?: string
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type InvestmentUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  assetCode?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type InvestmentUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  investorId?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  assetCode?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type InvestmentListRelationFilter = {
@@ -312,9 +350,11 @@ export type InvestmentOrderByRelationAggregateInput = {
 
 export type InvestmentCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  investorId?: Prisma.SortOrder
+  userId?: Prisma.SortOrder
   amount?: Prisma.SortOrder
+  assetCode?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type InvestmentAvgOrderByAggregateInput = {
@@ -323,100 +363,108 @@ export type InvestmentAvgOrderByAggregateInput = {
 
 export type InvestmentMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  investorId?: Prisma.SortOrder
+  userId?: Prisma.SortOrder
   amount?: Prisma.SortOrder
+  assetCode?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type InvestmentMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  investorId?: Prisma.SortOrder
+  userId?: Prisma.SortOrder
   amount?: Prisma.SortOrder
+  assetCode?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type InvestmentSumOrderByAggregateInput = {
   amount?: Prisma.SortOrder
 }
 
-export type InvestmentCreateNestedManyWithoutInvestorInput = {
-  create?: Prisma.XOR<Prisma.InvestmentCreateWithoutInvestorInput, Prisma.InvestmentUncheckedCreateWithoutInvestorInput> | Prisma.InvestmentCreateWithoutInvestorInput[] | Prisma.InvestmentUncheckedCreateWithoutInvestorInput[]
-  connectOrCreate?: Prisma.InvestmentCreateOrConnectWithoutInvestorInput | Prisma.InvestmentCreateOrConnectWithoutInvestorInput[]
-  createMany?: Prisma.InvestmentCreateManyInvestorInputEnvelope
+export type InvestmentCreateNestedManyWithoutUserInput = {
+  create?: Prisma.XOR<Prisma.InvestmentCreateWithoutUserInput, Prisma.InvestmentUncheckedCreateWithoutUserInput> | Prisma.InvestmentCreateWithoutUserInput[] | Prisma.InvestmentUncheckedCreateWithoutUserInput[]
+  connectOrCreate?: Prisma.InvestmentCreateOrConnectWithoutUserInput | Prisma.InvestmentCreateOrConnectWithoutUserInput[]
+  createMany?: Prisma.InvestmentCreateManyUserInputEnvelope
   connect?: Prisma.InvestmentWhereUniqueInput | Prisma.InvestmentWhereUniqueInput[]
 }
 
-export type InvestmentUncheckedCreateNestedManyWithoutInvestorInput = {
-  create?: Prisma.XOR<Prisma.InvestmentCreateWithoutInvestorInput, Prisma.InvestmentUncheckedCreateWithoutInvestorInput> | Prisma.InvestmentCreateWithoutInvestorInput[] | Prisma.InvestmentUncheckedCreateWithoutInvestorInput[]
-  connectOrCreate?: Prisma.InvestmentCreateOrConnectWithoutInvestorInput | Prisma.InvestmentCreateOrConnectWithoutInvestorInput[]
-  createMany?: Prisma.InvestmentCreateManyInvestorInputEnvelope
+export type InvestmentUncheckedCreateNestedManyWithoutUserInput = {
+  create?: Prisma.XOR<Prisma.InvestmentCreateWithoutUserInput, Prisma.InvestmentUncheckedCreateWithoutUserInput> | Prisma.InvestmentCreateWithoutUserInput[] | Prisma.InvestmentUncheckedCreateWithoutUserInput[]
+  connectOrCreate?: Prisma.InvestmentCreateOrConnectWithoutUserInput | Prisma.InvestmentCreateOrConnectWithoutUserInput[]
+  createMany?: Prisma.InvestmentCreateManyUserInputEnvelope
   connect?: Prisma.InvestmentWhereUniqueInput | Prisma.InvestmentWhereUniqueInput[]
 }
 
-export type InvestmentUpdateManyWithoutInvestorNestedInput = {
-  create?: Prisma.XOR<Prisma.InvestmentCreateWithoutInvestorInput, Prisma.InvestmentUncheckedCreateWithoutInvestorInput> | Prisma.InvestmentCreateWithoutInvestorInput[] | Prisma.InvestmentUncheckedCreateWithoutInvestorInput[]
-  connectOrCreate?: Prisma.InvestmentCreateOrConnectWithoutInvestorInput | Prisma.InvestmentCreateOrConnectWithoutInvestorInput[]
-  upsert?: Prisma.InvestmentUpsertWithWhereUniqueWithoutInvestorInput | Prisma.InvestmentUpsertWithWhereUniqueWithoutInvestorInput[]
-  createMany?: Prisma.InvestmentCreateManyInvestorInputEnvelope
+export type InvestmentUpdateManyWithoutUserNestedInput = {
+  create?: Prisma.XOR<Prisma.InvestmentCreateWithoutUserInput, Prisma.InvestmentUncheckedCreateWithoutUserInput> | Prisma.InvestmentCreateWithoutUserInput[] | Prisma.InvestmentUncheckedCreateWithoutUserInput[]
+  connectOrCreate?: Prisma.InvestmentCreateOrConnectWithoutUserInput | Prisma.InvestmentCreateOrConnectWithoutUserInput[]
+  upsert?: Prisma.InvestmentUpsertWithWhereUniqueWithoutUserInput | Prisma.InvestmentUpsertWithWhereUniqueWithoutUserInput[]
+  createMany?: Prisma.InvestmentCreateManyUserInputEnvelope
   set?: Prisma.InvestmentWhereUniqueInput | Prisma.InvestmentWhereUniqueInput[]
   disconnect?: Prisma.InvestmentWhereUniqueInput | Prisma.InvestmentWhereUniqueInput[]
   delete?: Prisma.InvestmentWhereUniqueInput | Prisma.InvestmentWhereUniqueInput[]
   connect?: Prisma.InvestmentWhereUniqueInput | Prisma.InvestmentWhereUniqueInput[]
-  update?: Prisma.InvestmentUpdateWithWhereUniqueWithoutInvestorInput | Prisma.InvestmentUpdateWithWhereUniqueWithoutInvestorInput[]
-  updateMany?: Prisma.InvestmentUpdateManyWithWhereWithoutInvestorInput | Prisma.InvestmentUpdateManyWithWhereWithoutInvestorInput[]
+  update?: Prisma.InvestmentUpdateWithWhereUniqueWithoutUserInput | Prisma.InvestmentUpdateWithWhereUniqueWithoutUserInput[]
+  updateMany?: Prisma.InvestmentUpdateManyWithWhereWithoutUserInput | Prisma.InvestmentUpdateManyWithWhereWithoutUserInput[]
   deleteMany?: Prisma.InvestmentScalarWhereInput | Prisma.InvestmentScalarWhereInput[]
 }
 
-export type InvestmentUncheckedUpdateManyWithoutInvestorNestedInput = {
-  create?: Prisma.XOR<Prisma.InvestmentCreateWithoutInvestorInput, Prisma.InvestmentUncheckedCreateWithoutInvestorInput> | Prisma.InvestmentCreateWithoutInvestorInput[] | Prisma.InvestmentUncheckedCreateWithoutInvestorInput[]
-  connectOrCreate?: Prisma.InvestmentCreateOrConnectWithoutInvestorInput | Prisma.InvestmentCreateOrConnectWithoutInvestorInput[]
-  upsert?: Prisma.InvestmentUpsertWithWhereUniqueWithoutInvestorInput | Prisma.InvestmentUpsertWithWhereUniqueWithoutInvestorInput[]
-  createMany?: Prisma.InvestmentCreateManyInvestorInputEnvelope
+export type InvestmentUncheckedUpdateManyWithoutUserNestedInput = {
+  create?: Prisma.XOR<Prisma.InvestmentCreateWithoutUserInput, Prisma.InvestmentUncheckedCreateWithoutUserInput> | Prisma.InvestmentCreateWithoutUserInput[] | Prisma.InvestmentUncheckedCreateWithoutUserInput[]
+  connectOrCreate?: Prisma.InvestmentCreateOrConnectWithoutUserInput | Prisma.InvestmentCreateOrConnectWithoutUserInput[]
+  upsert?: Prisma.InvestmentUpsertWithWhereUniqueWithoutUserInput | Prisma.InvestmentUpsertWithWhereUniqueWithoutUserInput[]
+  createMany?: Prisma.InvestmentCreateManyUserInputEnvelope
   set?: Prisma.InvestmentWhereUniqueInput | Prisma.InvestmentWhereUniqueInput[]
   disconnect?: Prisma.InvestmentWhereUniqueInput | Prisma.InvestmentWhereUniqueInput[]
   delete?: Prisma.InvestmentWhereUniqueInput | Prisma.InvestmentWhereUniqueInput[]
   connect?: Prisma.InvestmentWhereUniqueInput | Prisma.InvestmentWhereUniqueInput[]
-  update?: Prisma.InvestmentUpdateWithWhereUniqueWithoutInvestorInput | Prisma.InvestmentUpdateWithWhereUniqueWithoutInvestorInput[]
-  updateMany?: Prisma.InvestmentUpdateManyWithWhereWithoutInvestorInput | Prisma.InvestmentUpdateManyWithWhereWithoutInvestorInput[]
+  update?: Prisma.InvestmentUpdateWithWhereUniqueWithoutUserInput | Prisma.InvestmentUpdateWithWhereUniqueWithoutUserInput[]
+  updateMany?: Prisma.InvestmentUpdateManyWithWhereWithoutUserInput | Prisma.InvestmentUpdateManyWithWhereWithoutUserInput[]
   deleteMany?: Prisma.InvestmentScalarWhereInput | Prisma.InvestmentScalarWhereInput[]
 }
 
-export type InvestmentCreateWithoutInvestorInput = {
+export type InvestmentCreateWithoutUserInput = {
   id?: string
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  assetCode?: string
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
-export type InvestmentUncheckedCreateWithoutInvestorInput = {
+export type InvestmentUncheckedCreateWithoutUserInput = {
   id?: string
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  assetCode?: string
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
-export type InvestmentCreateOrConnectWithoutInvestorInput = {
+export type InvestmentCreateOrConnectWithoutUserInput = {
   where: Prisma.InvestmentWhereUniqueInput
-  create: Prisma.XOR<Prisma.InvestmentCreateWithoutInvestorInput, Prisma.InvestmentUncheckedCreateWithoutInvestorInput>
+  create: Prisma.XOR<Prisma.InvestmentCreateWithoutUserInput, Prisma.InvestmentUncheckedCreateWithoutUserInput>
 }
 
-export type InvestmentCreateManyInvestorInputEnvelope = {
-  data: Prisma.InvestmentCreateManyInvestorInput | Prisma.InvestmentCreateManyInvestorInput[]
+export type InvestmentCreateManyUserInputEnvelope = {
+  data: Prisma.InvestmentCreateManyUserInput | Prisma.InvestmentCreateManyUserInput[]
   skipDuplicates?: boolean
 }
 
-export type InvestmentUpsertWithWhereUniqueWithoutInvestorInput = {
+export type InvestmentUpsertWithWhereUniqueWithoutUserInput = {
   where: Prisma.InvestmentWhereUniqueInput
-  update: Prisma.XOR<Prisma.InvestmentUpdateWithoutInvestorInput, Prisma.InvestmentUncheckedUpdateWithoutInvestorInput>
-  create: Prisma.XOR<Prisma.InvestmentCreateWithoutInvestorInput, Prisma.InvestmentUncheckedCreateWithoutInvestorInput>
+  update: Prisma.XOR<Prisma.InvestmentUpdateWithoutUserInput, Prisma.InvestmentUncheckedUpdateWithoutUserInput>
+  create: Prisma.XOR<Prisma.InvestmentCreateWithoutUserInput, Prisma.InvestmentUncheckedCreateWithoutUserInput>
 }
 
-export type InvestmentUpdateWithWhereUniqueWithoutInvestorInput = {
+export type InvestmentUpdateWithWhereUniqueWithoutUserInput = {
   where: Prisma.InvestmentWhereUniqueInput
-  data: Prisma.XOR<Prisma.InvestmentUpdateWithoutInvestorInput, Prisma.InvestmentUncheckedUpdateWithoutInvestorInput>
+  data: Prisma.XOR<Prisma.InvestmentUpdateWithoutUserInput, Prisma.InvestmentUncheckedUpdateWithoutUserInput>
 }
 
-export type InvestmentUpdateManyWithWhereWithoutInvestorInput = {
+export type InvestmentUpdateManyWithWhereWithoutUserInput = {
   where: Prisma.InvestmentScalarWhereInput
-  data: Prisma.XOR<Prisma.InvestmentUpdateManyMutationInput, Prisma.InvestmentUncheckedUpdateManyWithoutInvestorInput>
+  data: Prisma.XOR<Prisma.InvestmentUpdateManyMutationInput, Prisma.InvestmentUncheckedUpdateManyWithoutUserInput>
 }
 
 export type InvestmentScalarWhereInput = {
@@ -424,89 +472,109 @@ export type InvestmentScalarWhereInput = {
   OR?: Prisma.InvestmentScalarWhereInput[]
   NOT?: Prisma.InvestmentScalarWhereInput | Prisma.InvestmentScalarWhereInput[]
   id?: Prisma.StringFilter<"Investment"> | string
-  investorId?: Prisma.StringFilter<"Investment"> | string
+  userId?: Prisma.StringFilter<"Investment"> | string
   amount?: Prisma.DecimalFilter<"Investment"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  assetCode?: Prisma.StringFilter<"Investment"> | string
   createdAt?: Prisma.DateTimeFilter<"Investment"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"Investment"> | Date | string
 }
 
-export type InvestmentCreateManyInvestorInput = {
+export type InvestmentCreateManyUserInput = {
   id?: string
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  assetCode?: string
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
-export type InvestmentUpdateWithoutInvestorInput = {
+export type InvestmentUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  assetCode?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-export type InvestmentUncheckedUpdateWithoutInvestorInput = {
+export type InvestmentUncheckedUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  assetCode?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-export type InvestmentUncheckedUpdateManyWithoutInvestorInput = {
+export type InvestmentUncheckedUpdateManyWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  assetCode?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
 
 export type InvestmentSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  investorId?: boolean
+  userId?: boolean
   amount?: boolean
+  assetCode?: boolean
   createdAt?: boolean
-  investor?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  updatedAt?: boolean
+  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["investment"]>
 
 export type InvestmentSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  investorId?: boolean
+  userId?: boolean
   amount?: boolean
+  assetCode?: boolean
   createdAt?: boolean
-  investor?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  updatedAt?: boolean
+  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["investment"]>
 
 export type InvestmentSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  investorId?: boolean
+  userId?: boolean
   amount?: boolean
+  assetCode?: boolean
   createdAt?: boolean
-  investor?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  updatedAt?: boolean
+  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["investment"]>
 
 export type InvestmentSelectScalar = {
   id?: boolean
-  investorId?: boolean
+  userId?: boolean
   amount?: boolean
+  assetCode?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type InvestmentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "investorId" | "amount" | "createdAt", ExtArgs["result"]["investment"]>
+export type InvestmentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "amount" | "assetCode" | "createdAt" | "updatedAt", ExtArgs["result"]["investment"]>
 export type InvestmentInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  investor?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
 export type InvestmentIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  investor?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
 export type InvestmentIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  investor?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
 
 export type $InvestmentPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Investment"
   objects: {
-    investor: Prisma.$UserPayload<ExtArgs>
+    user: Prisma.$UserPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
-    investorId: string
+    userId: string
     amount: runtime.Decimal
+    assetCode: string
     createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["investment"]>
   composites: {}
 }
@@ -901,7 +969,7 @@ readonly fields: InvestmentFieldRefs;
  */
 export interface Prisma__InvestmentClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  investor<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  user<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -932,9 +1000,11 @@ export interface Prisma__InvestmentClient<T, Null = never, ExtArgs extends runti
  */
 export interface InvestmentFieldRefs {
   readonly id: Prisma.FieldRef<"Investment", 'String'>
-  readonly investorId: Prisma.FieldRef<"Investment", 'String'>
+  readonly userId: Prisma.FieldRef<"Investment", 'String'>
   readonly amount: Prisma.FieldRef<"Investment", 'Decimal'>
+  readonly assetCode: Prisma.FieldRef<"Investment", 'String'>
   readonly createdAt: Prisma.FieldRef<"Investment", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"Investment", 'DateTime'>
 }
     
 

@@ -2,15 +2,17 @@ import { SignJWT, jwtVerify } from 'jose';
 import { cookies } from 'next/headers';
 
 const SECRET_KEY = process.env.JWT_SECRET_KEY;
-if (!SECRET_KEY) {
-  throw new Error('JWT_SECRET_KEY is not defined in environment variables');
+const key = SECRET_KEY ? new TextEncoder().encode(SECRET_KEY) : null;
+
+function getKey(): Uint8Array {
+  if (!key) throw new Error('JWT_SECRET_KEY is not defined in environment variables');
+  return key;
 }
-const key = new TextEncoder().encode(SECRET_KEY);
 
 export interface TokenPayload {
   sub: string;
   type?: 'access' | 'refresh';
-  [key: string]: any;
+  [key: string]: string | number | boolean | null | undefined;
 }
 
 export async function signToken(payload: TokenPayload, expiresIn: string = '1h') {
@@ -18,16 +20,16 @@ export async function signToken(payload: TokenPayload, expiresIn: string = '1h')
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
     .setExpirationTime(expiresIn)
-    .sign(key);
+    .sign(getKey());
 }
 
 export async function verifyToken(token: string) {
   try {
-    const { payload } = await jwtVerify(token, key, {
+    const { payload } = await jwtVerify(token, getKey(), {
       algorithms: ['HS256'],
     });
     return payload;
-  } catch (error) {
+  } catch {
     return null;
   }
 }

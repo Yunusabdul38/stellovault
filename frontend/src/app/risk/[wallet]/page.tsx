@@ -120,7 +120,7 @@ export default function WalletRiskPage({ params }: { params: Promise<{ wallet: s
                                         <span>Protocol Confidence</span>
                                     </div>
                                     <p className="text-gray-600 text-sm leading-relaxed">
-                                        This wallet demonstrates a <span className="text-gray-900 font-medium">"{data.grade}" grade </span>
+                                        This wallet demonstrates a <span className="text-gray-900 font-medium">&quot;{data.grade}&quot; grade </span>
                                         risk profile based on our proprietary on-chain analysis. This assessment is derived from over 48 parameters across the Stellar network.
                                     </p>
                                 </div>

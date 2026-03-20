@@ -5,7 +5,7 @@
 
 #![no_std]
 
-use soroban_sdk::{contract, contractimpl, contracttype, symbol_short, Address, Env, Symbol, Val};
+use soroban_sdk::{contract, contractimpl, contracttype, symbol_short, Address, Env, IntoVal, Symbol, Val};
 
 #[contracttype]
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -59,6 +59,7 @@ pub struct RateParameters {
 }
 
 impl RateParameters {
+    #[allow(clippy::should_implement_trait)]
     pub fn default() -> Self {
         Self {
             base_rate: 200,      // 2%
@@ -201,32 +202,27 @@ impl LoanManagement {
         }
 
         let risk_contract = risk_engine.unwrap();
-        
+
         // For borrower-specific risk assessment, we need to find the borrower's position
         // Since RiskAssessment::get_position_risk requires a position_id (escrow_id),
         // we'll check if the borrower has any existing positions
         // For now, we'll use a simplified approach: query the borrower's overall risk
-        
+
         // Create arguments for the risk assessment call
-        // We'll implement a borrower-specific risk function in RiskAssessment
-        let args: soroban_sdk::Vec<Val> = soroban_sdk::Vec::new(env);
-        args.push_back(borrower.clone().into());
-        
+        let mut args: soroban_sdk::Vec<Val> = soroban_sdk::Vec::new(env);
+        args.push_back(borrower.clone().into_val(env));
+
         // Try to call get_borrower_risk_factor function on RiskAssessment
         // If that function doesn't exist, fall back to default
-        let risk_factor_result: Result<u32, soroban_sdk::Error> = env.try_invoke_contract(
+        let risk_factor_result = env.try_invoke_contract::<u32, soroban_sdk::Error>(
             &risk_contract,
             &Symbol::new(env, "get_borrower_risk_factor"),
             args,
         );
 
         match risk_factor_result {
-            Ok(risk_factor) => Ok(risk_factor),
-            Err(_) => {
-                // If the function doesn't exist or call fails, use default risk factor
-                // In a production environment, you might want to handle this differently
-                Ok(1) // Default to Warning level
-            }
+            Ok(Ok(risk_factor)) => Ok(risk_factor),
+            _ => Ok(1), // Default to Warning level
         }
     }
 
@@ -488,15 +484,16 @@ impl LoanManagement {
 
         // Calculate total repayment: principal + interest
         let interest = (loan.amount * (loan.interest_rate as i128)) / 10000;
-        let total_due = loan.amount + interest;
+        let _total_due = loan.amount + interest;
 
         // Calculate accrued interest since last repayment
         let seconds_per_year: u64 = 31_557_600;
         let elapsed = current_ts - loan.last_repayment_ts;
         let principal_remaining = loan.amount - loan.principal_repaid;
 
-        let interest_accrued = (principal_remaining * (loan.interest_rate as i128) * (elapsed as i128))
-            / ((seconds_per_year as i128) * 10000);
+        let interest_accrued =
+            (principal_remaining * (loan.interest_rate as i128) * (elapsed as i128))
+                / ((seconds_per_year as i128) * 10000);
 
         let interest_outstanding = interest_accrued;
 
@@ -532,40 +529,31 @@ impl LoanManagement {
         let treasury_opt: Option<Address> =
             env.storage().instance().get(&symbol_short!("treasury"));
 
-        let protocol_fee = if treasury_opt.is_some() && principal_payment > 0 {
+        let protocol_fee = if let Some(treasury) = treasury_opt.filter(|_| principal_payment > 0) {
             // Query fee_bps from ProtocolTreasury
-            let treasury = treasury_opt.as_ref().unwrap();
             let fee_bps_args: soroban_sdk::Vec<Val> = soroban_sdk::Vec::new(&env);
-            let fee_bps: u32 = env.invoke_contract(
-                treasury,
-                &Symbol::new(&env, "get_fee_bps"),
-                fee_bps_args,
-            );
+            let fee_bps: u32 =
+                env.invoke_contract(&treasury, &Symbol::new(&env, "get_fee_bps"), fee_bps_args);
             // Calculate fee on the principal payment only (not interest)
             let fee_amount = (principal_payment * fee_bps as i128) / 10000;
-            
+
             // Record the fee deposit in treasury
             // Note: In a full implementation, the actual token transfer would happen
             // before this call, either by the borrower or automatically
             let deposit_args: soroban_sdk::Vec<Val> = soroban_sdk::Vec::from_array(
                 &env,
                 [
-                    loan.lender.into_val(&env), // Asset address (simplified - using lender as proxy)
+                    loan.lender.into_val(&env),
                     fee_amount.into_val(&env),
                 ],
             );
-            env.invoke_contract(
-                &treasury,
-                &Symbol::new(&env, "deposit_fee"),
-                deposit_args,
-            );
-            
+            let _: () = env.invoke_contract(&treasury, &Symbol::new(&env, "deposit_fee"), deposit_args);
+
             fee_amount
         } else {
             0i128
         };
 
-        loan.status = LoanStatus::Repaid;
         env.storage().persistent().set(&loan_id, &loan);
 
         // Update total borrowed (decrease by principal paid)
@@ -582,8 +570,10 @@ impl LoanManagement {
         }
 
         // Emit LoanRepaid event including protocol fee
-        env.events()
-            .publish((symbol_short!("loan_rep"),), (loan_id, amount, protocol_fee));
+        env.events().publish(
+            (symbol_short!("loan_rep"),),
+            (loan_id, amount, protocol_fee),
+        );
 
         Ok(())
     }
@@ -605,8 +595,9 @@ impl LoanManagement {
         let elapsed = current_ts - loan.last_repayment_ts;
         let principal_remaining = loan.amount - loan.principal_repaid;
 
-        let interest_accrued = (principal_remaining * (loan.interest_rate as i128) * (elapsed as i128))
-            / ((seconds_per_year as i128) * 10000);
+        let interest_accrued =
+            (principal_remaining * (loan.interest_rate as i128) * (elapsed as i128))
+                / ((seconds_per_year as i128) * 10000);
 
         Ok(principal_remaining + interest_accrued)
     }
@@ -759,7 +750,13 @@ mod test {
     use super::*;
     use soroban_sdk::{testutils::Address as _, testutils::Ledger as _, Env};
 
-    fn setup_env() -> (Env, LoanManagementClient<'static>, Address, Address, Address) {
+    fn setup_env() -> (
+        Env,
+        LoanManagementClient<'static>,
+        Address,
+        Address,
+        Address,
+    ) {
         let env = Env::default();
         env.mock_all_auths();
 

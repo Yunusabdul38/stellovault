@@ -10,7 +10,9 @@
 
 #![no_std]
 
-use soroban_sdk::{contract, contractclient, contractimpl, contracttype, symbol_short, Address, Env, Symbol};
+use soroban_sdk::{
+    contract, contractclient, contractimpl, contracttype, symbol_short, Address, Env, Symbol,
+};
 
 // ============================================================================
 // Error Types
@@ -711,7 +713,10 @@ impl Governance {
     }
 
     /// Get the current lifecycle status of a proposal
-    pub fn get_proposal_status(env: Env, proposal_id: u64) -> Result<ProposalStatus, ContractError> {
+    pub fn get_proposal_status(
+        env: Env,
+        proposal_id: u64,
+    ) -> Result<ProposalStatus, ContractError> {
         let proposal = Self::get_proposal(env.clone(), proposal_id)?;
 
         if proposal.executed {
@@ -1645,8 +1650,7 @@ mod test {
             );
 
             // Advance past timelock and execute
-            env.ledger()
-                .set_timestamp(env.ledger().timestamp() + 86401);
+            env.ledger().set_timestamp(env.ledger().timestamp() + 86401);
 
             Governance::execute_proposal(env.clone(), proposal_id).unwrap();
 

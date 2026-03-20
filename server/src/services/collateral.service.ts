@@ -1,7 +1,5 @@
 import { ConflictError, NotFoundError, ValidationError } from "../config/errors";
 import { prisma } from "./database.service";
-import { CollateralStatus } from "@prisma/client";
-import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 
 const UUID_REGEX = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
 
@@ -19,7 +17,7 @@ interface CollateralListQuery {
     limit?: string | number;
 }
 
-const COLLATERAL_STATUSES = new Set(["PENDING", "DEPOSITED"]);
+const COLLATERAL_STATUSES = new Set(["LOCKED", "RELEASED", "LIQUIDATED"]);
 const MIN_PAGE = 1;
 const DEFAULT_PAGE = 1;
 const DEFAULT_LIMIT = 20;
@@ -33,14 +31,14 @@ function parsePositiveAmount(value: string | number | undefined, fieldName: stri
     return amount;
 }
 
-function normalizeStatus(value: string | undefined, fieldName: string): CollateralStatus {
+function normalizeStatus(value: string | undefined, fieldName: string): string {
     const status = value?.trim().toUpperCase();
     if (!status || !COLLATERAL_STATUSES.has(status)) {
         throw new ValidationError(
-            `${fieldName} must be one of: PENDING, DEPOSITED`
+            `${fieldName} must be one of: LOCKED, RELEASED, LIQUIDATED`
         );
     }
-    return status as CollateralStatus;
+    return status;
 }
 
 function coercePage(value: string | number | undefined): number {
@@ -88,12 +86,15 @@ export class CollateralService {
                     amount: amount.toString(),
                     assetCode: payload.assetCode || "USDC",
                     metadataHash,
-                    status: "PENDING",
+                    status: "LOCKED",
                 },
             });
             return collateral;
-        } catch (error) {
-            if (error instanceof PrismaClientKnownRequestError && error.code === "P2002") {
+        } catch (error: unknown) {
+            if (
+                typeof error === "object" && error !== null &&
+                "code" in error && (error as { code: string }).code === "P2002"
+            ) {
                 throw new ConflictError("Collateral with this metadataHash already exists");
             }
             throw error;
@@ -122,7 +123,7 @@ export class CollateralService {
             throw new ValidationError("Metadata hash is required");
         }
 
-        const collateral = await prisma.collateral.findUnique({
+        const collateral = await prisma.collateral.findFirst({
             where: { metadataHash: trimmedHash },
         });
 
@@ -182,7 +183,7 @@ export class CollateralService {
                 // const hashes = events.map(e => extractHash(e));
                 
                 const pendingCollaterals = await prisma.collateral.findMany({
-                    where: { status: "PENDING" },
+                    where: { status: "LOCKED" },
                     select: { id: true, metadataHash: true },
                 });
 

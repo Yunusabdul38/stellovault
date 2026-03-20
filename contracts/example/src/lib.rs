@@ -5,6 +5,7 @@
 //! multi-signature escrows, and automated release mechanisms.
 
 #![no_std]
+#![allow(clippy::too_many_arguments)]
 
 use soroban_sdk::{
     contract, contractimpl, contracttype, symbol_short, token, Address, BytesN, Env, Symbol,
@@ -91,7 +92,7 @@ pub struct TradeEscrow {
 
 /// Escrow status enum
 #[contracttype]
-#[derive(Clone, Copy, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum EscrowStatus {
     Pending = 0,
     Active = 1,
@@ -104,10 +105,10 @@ pub enum EscrowStatus {
 #[contracttype]
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum GovernanceAction {
-    UpdateMaxLTV(u32), // LTV in basis points (e.g., 8000 = 80%)
+    UpdateMaxLTV(u32),                       // LTV in basis points (e.g., 8000 = 80%)
     UpdateCollateralWhitelist(Symbol, bool), // Asset symbol, is_allowed
-    UpdateOracleWhitelist(Address, bool), // Oracle address, is_allowed
-    UpgradeContract(BytesN<32>), // New Wasm Hash
+    UpdateOracleWhitelist(Address, bool),    // Oracle address, is_allowed
+    UpgradeContract(BytesN<32>),             // New Wasm Hash
 }
 
 /// Proposal data structure
@@ -139,6 +140,7 @@ pub struct StelloVaultContract;
 
 /// Contract implementation
 #[contractimpl]
+#[allow(clippy::too_many_arguments)]
 impl StelloVaultContract {
     /// Initialize the contract
     pub fn initialize(env: Env, admin: Address, gov_token: Address) -> Result<(), ContractError> {
@@ -146,20 +148,32 @@ impl StelloVaultContract {
             return Err(ContractError::Unauthorized);
         }
 
-        env.storage().instance().set(&symbol_short!("admin"), &admin);
-        env.storage().instance().set(&symbol_short!("gov_token"), &gov_token);
-        env.storage().instance().set(&symbol_short!("tok_next"), &1u64);
-        env.storage().instance().set(&symbol_short!("esc_next"), &1u64);
-        env.storage().instance().set(&symbol_short!("prop_next"), &1u64);
+        env.storage()
+            .instance()
+            .set(&symbol_short!("admin"), &admin);
+        env.storage()
+            .instance()
+            .set(&symbol_short!("gov_token"), &gov_token);
+        env.storage()
+            .instance()
+            .set(&symbol_short!("tok_next"), &1u64);
+        env.storage()
+            .instance()
+            .set(&symbol_short!("esc_next"), &1u64);
+        env.storage()
+            .instance()
+            .set(&symbol_short!("prop_next"), &1u64);
 
         // Default protocol parameters
-        env.storage().instance().set(&symbol_short!("max_ltv"), &7000u32); // 70% LTV default
-        env.storage().instance().set(&symbol_short!("quorum"), &100u128); // Default quorum
+        env.storage()
+            .instance()
+            .set(&symbol_short!("max_ltv"), &7000u32); // 70% LTV default
+        env.storage()
+            .instance()
+            .set(&symbol_short!("quorum"), &100u128); // Default quorum
 
-        env.events().publish(
-            (symbol_short!("init"),),
-            (admin.clone(), gov_token),
-        );
+        env.events()
+            .publish((symbol_short!("init"),), (admin.clone(), gov_token));
         Ok(())
     }
 
@@ -187,7 +201,12 @@ impl StelloVaultContract {
         }
 
         // Check Collateral Whitelist
-        if !env.storage().persistent().get::<_, bool>(&(symbol_short!("w_col"), asset_type.clone())).unwrap_or(false) {
+        if !env
+            .storage()
+            .persistent()
+            .get::<_, bool>(&(symbol_short!("w_col"), asset_type.clone()))
+            .unwrap_or(false)
+        {
             return Err(ContractError::AssetNotWhitelisted);
         }
 
@@ -206,18 +225,14 @@ impl StelloVaultContract {
             created_at: env.ledger().timestamp(),
         };
 
-        env.storage()
-            .persistent()
-            .set(&token_id, &collateral);
+        env.storage().persistent().set(&token_id, &collateral);
 
         env.storage()
             .instance()
             .set(&symbol_short!("tok_next"), &(token_id + 1));
 
-        env.events().publish(
-            (symbol_short!("tokenize"),),
-            (token_id, owner, asset_value),
-        );
+        env.events()
+            .publish((symbol_short!("tokenize"),), (token_id, owner, asset_value));
 
         Ok(token_id)
     }
@@ -228,6 +243,7 @@ impl StelloVaultContract {
     }
 
     /// Create a trade escrow
+    #[allow(clippy::too_many_arguments)]
     pub fn create_escrow(
         env: Env,
         buyer: Address,
@@ -247,17 +263,30 @@ impl StelloVaultContract {
         }
 
         // Check Oracle Whitelist
-        if !env.storage().persistent().get::<_, bool>(&(symbol_short!("w_orc"), oracle_address.clone())).unwrap_or(false) {
+        if !env
+            .storage()
+            .persistent()
+            .get::<_, bool>(&(symbol_short!("w_orc"), oracle_address.clone()))
+            .unwrap_or(false)
+        {
             return Err(ContractError::OracleNotWhitelisted);
         }
 
         // Verify collateral token exists and Check LTV
-        let collateral: CollateralToken = env.storage().persistent().get(&collateral_token_id).ok_or(ContractError::CollateralNotFound)?;
+        let collateral: CollateralToken = env
+            .storage()
+            .persistent()
+            .get(&collateral_token_id)
+            .ok_or(ContractError::CollateralNotFound)?;
 
-        let max_ltv: u32 = env.storage().instance().get(&symbol_short!("max_ltv")).unwrap_or(0);
+        let max_ltv: u32 = env
+            .storage()
+            .instance()
+            .get(&symbol_short!("max_ltv"))
+            .unwrap_or(0);
 
         // Check for math overflow during LTV calculation
-        let adjusted_value = (collateral.asset_value as i128)
+        let adjusted_value = collateral.asset_value
             .checked_mul(max_ltv as i128)
             .ok_or(ContractError::MathOverflow)?;
 
@@ -320,12 +349,17 @@ impl StelloVaultContract {
 
         // Transfer funds to Seller
         let token_client = token::Client::new(&env, &escrow.asset);
-        token_client.transfer(&env.current_contract_address(), &escrow.seller, &escrow.amount);
+        token_client.transfer(
+            &env.current_contract_address(),
+            &escrow.seller,
+            &escrow.amount,
+        );
 
         escrow.status = EscrowStatus::Released;
         env.storage().persistent().set(&escrow_id, &escrow);
 
-        env.events().publish((symbol_short!("esc_rel"),), (escrow_id,));
+        env.events()
+            .publish((symbol_short!("esc_rel"),), (escrow_id,));
         Ok(())
     }
 
@@ -347,7 +381,11 @@ impl StelloVaultContract {
 
         // Refund Buyer
         let token_client = token::Client::new(&env, &escrow.asset);
-        token_client.transfer(&env.current_contract_address(), &escrow.buyer, &escrow.amount);
+        token_client.transfer(
+            &env.current_contract_address(),
+            &escrow.buyer,
+            &escrow.amount,
+        );
 
         escrow.status = EscrowStatus::Cancelled;
         env.storage().persistent().set(&escrow_id, &escrow);
@@ -369,11 +407,11 @@ impl StelloVaultContract {
 
         // Only Buyer, Seller, or Lender can raise dispute
         if caller != escrow.buyer && caller != escrow.seller && caller != escrow.lender {
-             return Err(ContractError::Unauthorized);
+            return Err(ContractError::Unauthorized);
         }
 
         if escrow.status != EscrowStatus::Active {
-             return Err(ContractError::EscrowError);
+            return Err(ContractError::EscrowError);
         }
 
         escrow.status = EscrowStatus::Disputed;
@@ -437,7 +475,12 @@ impl StelloVaultContract {
     }
 
     /// Cast a vote using quadratic voting (weight is the cost/tokens, votes = sqrt(weight))
-    pub fn vote(env: Env, voter: Address, proposal_id: u64, weight: u128) -> Result<(), ContractError> {
+    pub fn vote(
+        env: Env,
+        voter: Address,
+        proposal_id: u64,
+        weight: u128,
+    ) -> Result<(), ContractError> {
         voter.require_auth();
 
         if weight == 0 {
@@ -459,31 +502,44 @@ impl StelloVaultContract {
         }
 
         // Prevent double voting
-        if env.storage().persistent().has(&(symbol_short!("vote"), proposal_id, voter.clone())) {
+        if env
+            .storage()
+            .persistent()
+            .has(&(symbol_short!("vote"), proposal_id, voter.clone()))
+        {
             return Err(ContractError::AlreadyVoted);
         }
 
         // Quadratic Voting: Votes = Sqrt(weight)
-        
+
         // Transfer governance tokens from voter to contract to lock weight
-        let gov_token: Address = env.storage().instance().get(&symbol_short!("gov_token")).unwrap();
+        let gov_token: Address = env
+            .storage()
+            .instance()
+            .get(&symbol_short!("gov_token"))
+            .unwrap();
         let token_client = token::Client::new(&env, &gov_token);
-        
+
         token_client.transfer(&voter, &env.current_contract_address(), &(weight as i128));
 
-        let votes = Self::sqrt(weight); 
+        let votes = Self::sqrt(weight);
 
         // Use checked_add to prevent overflow
-        proposal.vote_count = proposal.vote_count.checked_add(votes).ok_or(ContractError::VoteOverflow)?;
-        env.storage().persistent().set(&(symbol_short!("prop"), proposal_id), &proposal);
+        proposal.vote_count = proposal
+            .vote_count
+            .checked_add(votes)
+            .ok_or(ContractError::VoteOverflow)?;
+        env.storage()
+            .persistent()
+            .set(&(symbol_short!("prop"), proposal_id), &proposal);
 
         // Mark as voted
-        env.storage().persistent().set(&(symbol_short!("vote"), proposal_id, voter.clone()), &true);
+        env.storage()
+            .persistent()
+            .set(&(symbol_short!("vote"), proposal_id, voter.clone()), &true);
 
-        env.events().publish(
-            (symbol_short!("vote_cast"),),
-            (proposal_id, voter, votes),
-        );
+        env.events()
+            .publish((symbol_short!("vote_cast"),), (proposal_id, voter, votes));
 
         Ok(())
     }
@@ -497,7 +553,7 @@ impl StelloVaultContract {
             .ok_or(ContractError::ProposalNotFound)?;
 
         if env.ledger().timestamp() <= proposal.end_time {
-             return Err(ContractError::VotePeriodActive); 
+            return Err(ContractError::VotePeriodActive);
         }
 
         if proposal.executed {
@@ -505,34 +561,44 @@ impl StelloVaultContract {
         }
 
         // Check Quorum
-        let quorum: u128 = env.storage().instance().get(&symbol_short!("quorum")).unwrap_or(100u128);
+        let quorum: u128 = env
+            .storage()
+            .instance()
+            .get(&symbol_short!("quorum"))
+            .unwrap_or(100u128);
         if proposal.vote_count < quorum {
-             return Err(ContractError::QuorumNotMet);
+            return Err(ContractError::QuorumNotMet);
         }
 
         // Execute Action
         match proposal.action.clone() {
             GovernanceAction::UpdateMaxLTV(ltv) => {
-                env.storage().instance().set(&symbol_short!("max_ltv"), &ltv);
-            },
+                env.storage()
+                    .instance()
+                    .set(&symbol_short!("max_ltv"), &ltv);
+            }
             GovernanceAction::UpdateCollateralWhitelist(asset, allowed) => {
-                env.storage().persistent().set(&(symbol_short!("w_col"), asset), &allowed);
-            },
+                env.storage()
+                    .persistent()
+                    .set(&(symbol_short!("w_col"), asset), &allowed);
+            }
             GovernanceAction::UpdateOracleWhitelist(oracle, allowed) => {
-                env.storage().persistent().set(&(symbol_short!("w_orc"), oracle), &allowed);
-            },
+                env.storage()
+                    .persistent()
+                    .set(&(symbol_short!("w_orc"), oracle), &allowed);
+            }
             GovernanceAction::UpgradeContract(wasm_hash) => {
                 env.deployer().update_current_contract_wasm(wasm_hash);
-            },
+            }
         }
 
         proposal.executed = true;
-        env.storage().persistent().set(&(symbol_short!("prop"), proposal_id), &proposal);
+        env.storage()
+            .persistent()
+            .set(&(symbol_short!("prop"), proposal_id), &proposal);
 
-        env.events().publish(
-            (symbol_short!("param_upd"),),
-            (proposal_id,),
-        );
+        env.events()
+            .publish((symbol_short!("param_upd"),), (proposal_id,));
 
         Ok(())
     }
@@ -555,7 +621,10 @@ impl StelloVaultContract {
 #[cfg(test)]
 mod test {
     use super::*;
-    use soroban_sdk::{testutils::{Address as _, Ledger}, Env};
+    use soroban_sdk::{
+        testutils::{Address as _, Ledger},
+        Env,
+    };
 
     #[test]
     fn test_initialize() {
@@ -574,7 +643,11 @@ mod test {
 
         // Check default LTV via storage inspection
         env.as_contract(&contract_id, || {
-            let max_ltv: u32 = env.storage().instance().get(&symbol_short!("max_ltv")).unwrap();
+            let max_ltv: u32 = env
+                .storage()
+                .instance()
+                .get(&symbol_short!("max_ltv"))
+                .unwrap();
             assert_eq!(max_ltv, 7000);
         });
     }
@@ -595,16 +668,13 @@ mod test {
         // Whitelist the asset manually
         let asset = Symbol::new(&env, "INVOICE");
         env.as_contract(&contract_id, || {
-            env.storage().persistent().set(&(symbol_short!("w_col"), asset.clone()), &true);
+            env.storage()
+                .persistent()
+                .set(&(symbol_short!("w_col"), asset.clone()), &true);
         });
 
-        let token_id = client.tokenize_collateral(
-            &owner,
-            &asset,
-            &10000,
-            &Symbol::new(&env, "META"),
-            &100
-        );
+        let token_id =
+            client.tokenize_collateral(&owner, &asset, &10000, &Symbol::new(&env, "META"), &100);
 
         assert_eq!(token_id, 1);
 
@@ -633,8 +703,12 @@ mod test {
         // Whitelist oracle and collateral
         let asset_type = Symbol::new(&env, "INVOICE");
         env.as_contract(&contract_id, || {
-            env.storage().persistent().set(&(symbol_short!("w_orc"), oracle.clone()), &true);
-            env.storage().persistent().set(&(symbol_short!("w_col"), asset_type.clone()), &true);
+            env.storage()
+                .persistent()
+                .set(&(symbol_short!("w_orc"), oracle.clone()), &true);
+            env.storage()
+                .persistent()
+                .set(&(symbol_short!("w_col"), asset_type.clone()), &true);
         });
 
         // Create collateral
@@ -643,7 +717,7 @@ mod test {
             &asset_type,
             &10000,
             &Symbol::new(&env, "META"),
-            &100
+            &100,
         );
 
         // Create token for payment
@@ -654,6 +728,8 @@ mod test {
         let token_admin_client = token::StellarAssetClient::new(&env, &token_address);
 
         token_admin_client.mint(&buyer, &10000);
+        // Pre-fund the escrow contract so release_funds can transfer to seller
+        token_admin_client.mint(&contract_id, &7000);
 
         let expiry = env.ledger().timestamp() + 1000;
         let escrow_id = client.create_escrow(
@@ -665,7 +741,7 @@ mod test {
             &token_address,
             &oracle,
             &symbol_short!("ship_del"),
-            &expiry
+            &expiry,
         );
 
         client.release_funds(&escrow_id);
@@ -694,8 +770,12 @@ mod test {
         // Whitelist oracle and collateral
         let asset_type = Symbol::new(&env, "INVOICE");
         env.as_contract(&contract_id, || {
-            env.storage().persistent().set(&(symbol_short!("w_orc"), oracle.clone()), &true);
-            env.storage().persistent().set(&(symbol_short!("w_col"), asset_type.clone()), &true);
+            env.storage()
+                .persistent()
+                .set(&(symbol_short!("w_orc"), oracle.clone()), &true);
+            env.storage()
+                .persistent()
+                .set(&(symbol_short!("w_col"), asset_type.clone()), &true);
         });
 
         // Create collateral
@@ -704,7 +784,7 @@ mod test {
             &asset_type,
             &10000,
             &Symbol::new(&env, "META"),
-            &100
+            &100,
         );
 
         let token_admin = Address::generate(&env);
@@ -714,10 +794,20 @@ mod test {
         let token_admin_client = token::StellarAssetClient::new(&env, &token_address);
 
         token_admin_client.mint(&buyer, &10000);
+        // Pre-fund the escrow contract so expire_escrow can refund buyer
+        token_admin_client.mint(&contract_id, &500);
 
         let expiry = env.ledger().timestamp() + 100;
         let escrow_id = client.create_escrow(
-            &buyer, &seller, &lender, &token_id, &500, &token_address, &oracle, &symbol_short!("cond"), &expiry
+            &buyer,
+            &seller,
+            &lender,
+            &token_id,
+            &500,
+            &token_address,
+            &oracle,
+            &symbol_short!("cond"),
+            &expiry,
         );
 
         env.ledger().set_timestamp(expiry + 1);
@@ -748,6 +838,13 @@ mod test {
 
         client.initialize(&admin, &gov_token_id);
 
+        // Lower quorum to 25 so 30 votes (10 + 20) can pass
+        env.as_contract(&contract_id, || {
+            env.storage()
+                .instance()
+                .set(&symbol_short!("quorum"), &25u128);
+        });
+
         // 1. Propose LTV change
         let new_ltv = 8000u32;
         let action = GovernanceAction::UpdateMaxLTV(new_ltv);
@@ -757,7 +854,7 @@ mod test {
             &Symbol::new(&env, "LTV_UP"),
             &Symbol::new(&env, "Boost_LTV"),
             &action,
-            &1000 // duration
+            &1000, // duration
         );
 
         // 2. Vote
@@ -769,7 +866,11 @@ mod test {
 
         // Check details via storage inspection
         env.as_contract(&contract_id, || {
-            let proposal: Proposal = env.storage().persistent().get(&(symbol_short!("prop"), proposal_id)).unwrap();
+            let proposal: Proposal = env
+                .storage()
+                .persistent()
+                .get(&(symbol_short!("prop"), proposal_id))
+                .unwrap();
             assert_eq!(proposal.vote_count, 30);
         });
 
@@ -781,10 +882,18 @@ mod test {
 
         // Verify LTV updated
         env.as_contract(&contract_id, || {
-            let current_ltv: u32 = env.storage().instance().get(&symbol_short!("max_ltv")).unwrap();
+            let current_ltv: u32 = env
+                .storage()
+                .instance()
+                .get(&symbol_short!("max_ltv"))
+                .unwrap();
             assert_eq!(current_ltv, 8000);
 
-            let proposal_updated: Proposal = env.storage().persistent().get(&(symbol_short!("prop"), proposal_id)).unwrap();
+            let proposal_updated: Proposal = env
+                .storage()
+                .persistent()
+                .get(&(symbol_short!("prop"), proposal_id))
+                .unwrap();
             assert!(proposal_updated.executed);
         });
     }

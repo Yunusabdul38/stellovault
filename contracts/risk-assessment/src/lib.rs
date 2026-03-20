@@ -113,14 +113,15 @@ pub struct RiskParameters {
 
 impl RiskParameters {
     /// Default risk parameters
+    #[allow(clippy::should_implement_trait)]
     pub fn default() -> Self {
         Self {
-            liquidation_threshold: 8000,    // 80%
-            liquidation_penalty: 500,       // 5%
-            min_health_factor: 10000,       // 1.0
-            max_liquidation_ratio: 5000,    // 50%
-            grace_period: 3600,             // 1 hour
-            liquidator_bonus: 500,          // 5%
+            liquidation_threshold: 8000, // 80%
+            liquidation_penalty: 500,    // 5%
+            min_health_factor: 10000,    // 1.0
+            max_liquidation_ratio: 5000, // 50%
+            grace_period: 3600,          // 1 hour
+            liquidator_bonus: 500,       // 5%
         }
     }
 }
@@ -212,11 +213,12 @@ pub struct AuctionConfig {
 }
 
 impl AuctionConfig {
+    #[allow(clippy::should_implement_trait)]
     pub fn default() -> Self {
         Self {
-            duration: 21_600,             // 6 hours
-            decay_rate_bps_per_sec: 46,   // ~46 bps/s → 100% decay in ~6h at 10 000 bps scale
-            auction_fee_bps: 50,          // 0.5%
+            duration: 21_600,           // 6 hours
+            decay_rate_bps_per_sec: 46, // ~46 bps/s → 100% decay in ~6h at 10 000 bps scale
+            auction_fee_bps: 50,        // 0.5%
         }
     }
 }
@@ -353,31 +355,47 @@ impl RiskAssessment {
         }
 
         // Store contract addresses
-        env.storage().instance().set(&symbol_short!("admin"), &admin);
-        env.storage().instance().set(&symbol_short!("gov"), &governance);
-        env.storage().instance().set(&symbol_short!("coll_reg"), &collateral_registry);
-        env.storage().instance().set(&symbol_short!("loan_mgr"), &loan_management);
-        env.storage().instance().set(&symbol_short!("vault"), &vault);
+        env.storage()
+            .instance()
+            .set(&symbol_short!("admin"), &admin);
+        env.storage()
+            .instance()
+            .set(&symbol_short!("gov"), &governance);
+        env.storage()
+            .instance()
+            .set(&symbol_short!("coll_reg"), &collateral_registry);
+        env.storage()
+            .instance()
+            .set(&symbol_short!("loan_mgr"), &loan_management);
+        env.storage()
+            .instance()
+            .set(&symbol_short!("vault"), &vault);
 
         // Set default risk parameters
         let default_params = RiskParameters::default();
-        env.storage().instance().set(&symbol_short!("risk_prm"), &default_params);
+        env.storage()
+            .instance()
+            .set(&symbol_short!("risk_prm"), &default_params);
 
         // Set paused to false
-        env.storage().instance().set(&symbol_short!("paused"), &false);
+        env.storage()
+            .instance()
+            .set(&symbol_short!("paused"), &false);
 
         // Set default timelock duration (24 hours)
-        env.storage().instance().set(&symbol_short!("timelock"), &86400u64);
+        env.storage()
+            .instance()
+            .set(&symbol_short!("timelock"), &86400u64);
 
         // Set default auction config
         let default_auction_cfg = AuctionConfig::default();
-        env.storage().instance().set(&symbol_short!("auc_cfg"), &default_auction_cfg);
+        env.storage()
+            .instance()
+            .set(&symbol_short!("auc_cfg"), &default_auction_cfg);
 
         // Emit initialization event
-        env.events().publish(
-            (EVT_INIT,),
-            (admin.clone(), governance),
-        );
+        env.events()
+            .publish((EVT_INIT,), (admin.clone(), governance));
 
         Ok(())
     }
@@ -400,10 +418,7 @@ impl RiskAssessment {
 
     /// Get governance address
     pub fn governance(env: Env) -> Address {
-        env.storage()
-            .instance()
-            .get(&symbol_short!("gov"))
-            .unwrap()
+        env.storage().instance().get(&symbol_short!("gov")).unwrap()
     }
 
     // ========================================================================
@@ -429,12 +444,14 @@ impl RiskAssessment {
         }
 
         // Calculate total debt with interest
-        let interest = loan.amount
+        let interest = loan
+            .amount
             .checked_mul(loan.interest_rate as i128)
             .ok_or(ContractError::MathOverflow)?
             / 10000;
 
-        let total_debt = loan.amount
+        let total_debt = loan
+            .amount
             .checked_add(interest)
             .ok_or(ContractError::MathOverflow)?;
 
@@ -495,7 +512,10 @@ impl RiskAssessment {
         let risk_params = Self::get_risk_parameters(env.clone());
         let health_factor = Self::calculate_health_factor(env, position_id)?;
 
-        Ok(Self::calculate_risk_status(health_factor, risk_params.min_health_factor))
+        Ok(Self::calculate_risk_status(
+            health_factor,
+            risk_params.min_health_factor,
+        ))
     }
 
     /// Get aggregated position data
@@ -504,12 +524,14 @@ impl RiskAssessment {
         let (loan, collateral, _escrow) = Self::fetch_position_data(&env, position_id)?;
 
         // Calculate interest
-        let interest = loan.amount
+        let interest = loan
+            .amount
             .checked_mul(loan.interest_rate as i128)
             .ok_or(ContractError::MathOverflow)?
             / 10000;
 
-        let total_debt = loan.amount
+        let total_debt = loan
+            .amount
             .checked_add(interest)
             .ok_or(ContractError::MathOverflow)?;
 
@@ -544,7 +566,7 @@ impl RiskAssessment {
     }
 
     /// Get borrower's overall risk factor based on all their positions
-    /// 
+    ///
     /// This function assesses the borrower's overall risk profile by analyzing
     /// all their active positions and returns a risk factor (0-3):
     /// - 0: Healthy (all positions healthy)
@@ -557,33 +579,38 @@ impl RiskAssessment {
         // 1. Query all active positions for the borrower
         // 2. Calculate the worst risk status among all positions
         // 3. Return the corresponding risk factor
-        
+
         // For now, we'll implement a basic version that checks if the borrower
         // has any existing positions and assigns risk based on that
-        
+
         // Try to get borrower's risk history from storage (for testing/simulation)
-        let borrower_risk_key = (symbol_short!("borrower_risk"), borrower.clone());
+        let borrower_risk_key = (symbol_short!("bwr_risk"), borrower.clone());
         if let Some(stored_risk) = env.storage().persistent().get::<_, u32>(&borrower_risk_key) {
             return Ok(stored_risk);
         }
-        
-        // If no stored risk data, use a simple heuristic based on address
+
+        // If no stored risk data, use a simple heuristic (default to 0 = Healthy)
         // In production, this would be replaced with actual position analysis
-        let address_bytes = borrower.to_fixed_bytes();
-        let risk_score = (address_bytes[31] % 4) as u32; // 0-3 range
-        
+        let risk_score = 0u32;
+
         Ok(risk_score)
     }
 
     /// Set borrower risk factor (for testing purposes only)
     #[cfg(any(test, feature = "testutils"))]
-    pub fn set_borrower_risk_factor(env: Env, borrower: Address, risk_factor: u32) -> Result<(), ContractError> {
+    pub fn set_borrower_risk_factor(
+        env: Env,
+        borrower: Address,
+        risk_factor: u32,
+    ) -> Result<(), ContractError> {
         if risk_factor > 3 {
             return Err(ContractError::InvalidHealthFactor);
         }
-        
-        let borrower_risk_key = (symbol_short!("borrower_risk"), borrower);
-        env.storage().persistent().set(&borrower_risk_key, &risk_factor);
+
+        let borrower_risk_key = (symbol_short!("bwr_risk"), borrower);
+        env.storage()
+            .persistent()
+            .set(&borrower_risk_key, &risk_factor);
         Ok(())
     }
 
@@ -607,7 +634,8 @@ impl RiskAssessment {
         liquidator.require_auth();
 
         // Check liquidations not paused
-        let paused: bool = env.storage()
+        let paused: bool = env
+            .storage()
             .instance()
             .get(&symbol_short!("paused"))
             .unwrap_or(false);
@@ -642,12 +670,14 @@ impl RiskAssessment {
         }
 
         // Calculate total debt with interest
-        let interest = loan.amount
+        let interest = loan
+            .amount
             .checked_mul(loan.interest_rate as i128)
             .ok_or(ContractError::MathOverflow)?
             / 10000;
 
-        let total_debt = loan.amount
+        let total_debt = loan
+            .amount
             .checked_add(interest)
             .ok_or(ContractError::MathOverflow)?;
 
@@ -689,7 +719,8 @@ impl RiskAssessment {
             10000 // 100% if no debt
         };
 
-        let collateral_to_seize = collateral.face_value
+        let collateral_to_seize = collateral
+            .face_value
             .checked_mul(collateral_ratio)
             .ok_or(ContractError::MathOverflow)?
             / 10000;
@@ -736,12 +767,19 @@ impl RiskAssessment {
         );
 
         // 4. Update cooldown
-        env.storage().persistent().set(&cooldown_key, &env.ledger().timestamp());
+        env.storage()
+            .persistent()
+            .set(&cooldown_key, &env.ledger().timestamp());
 
         // 5. Emit events
         env.events().publish(
             (EVT_LIQ_EXEC,),
-            (position_id, liquidator.clone(), liquidation_amount, collateral_to_seize),
+            (
+                position_id,
+                liquidator.clone(),
+                liquidation_amount,
+                collateral_to_seize,
+            ),
         );
 
         env.events().publish(
@@ -770,7 +808,8 @@ impl RiskAssessment {
         new_params: RiskParameters,
     ) -> Result<(), ContractError> {
         // Verify caller is governance
-        let governance: Address = env.storage()
+        let governance: Address = env
+            .storage()
             .instance()
             .get(&symbol_short!("gov"))
             .ok_or(ContractError::Unauthorized)?;
@@ -781,7 +820,8 @@ impl RiskAssessment {
         Self::validate_parameters(&new_params)?;
 
         // Get timelock duration
-        let timelock_duration: u64 = env.storage()
+        let timelock_duration: u64 = env
+            .storage()
             .instance()
             .get(&symbol_short!("timelock"))
             .unwrap_or(86400);
@@ -799,7 +839,9 @@ impl RiskAssessment {
             execute_after,
         };
 
-        env.storage().instance().set(&symbol_short!("pending"), &pending);
+        env.storage()
+            .instance()
+            .set(&symbol_short!("pending"), &pending);
 
         // Emit proposal event
         env.events().publish(
@@ -818,7 +860,8 @@ impl RiskAssessment {
     /// Execute pending parameter update after timelock
     pub fn execute_parameter_update(env: Env) -> Result<(), ContractError> {
         // Get pending update
-        let pending: PendingUpdate = env.storage()
+        let pending: PendingUpdate = env
+            .storage()
             .instance()
             .get(&symbol_short!("pending"))
             .ok_or(ContractError::NoPendingUpdate)?;
@@ -830,7 +873,9 @@ impl RiskAssessment {
         }
 
         // Apply new parameters
-        env.storage().instance().set(&symbol_short!("risk_prm"), &pending.new_params);
+        env.storage()
+            .instance()
+            .set(&symbol_short!("risk_prm"), &pending.new_params);
 
         // Clear pending update
         env.storage().instance().remove(&symbol_short!("pending"));
@@ -851,7 +896,8 @@ impl RiskAssessment {
     /// Cancel pending parameter update (governance only)
     pub fn cancel_parameter_update(env: Env) -> Result<(), ContractError> {
         // Verify caller is governance
-        let governance: Address = env.storage()
+        let governance: Address = env
+            .storage()
             .instance()
             .get(&symbol_short!("gov"))
             .ok_or(ContractError::Unauthorized)?;
@@ -867,10 +913,8 @@ impl RiskAssessment {
         env.storage().instance().remove(&symbol_short!("pending"));
 
         // Emit cancel event
-        env.events().publish(
-            (EVT_PARAM_CANCEL,),
-            (env.ledger().timestamp(),),
-        );
+        env.events()
+            .publish((EVT_PARAM_CANCEL,), (env.ledger().timestamp(),));
 
         Ok(())
     }
@@ -887,7 +931,8 @@ impl RiskAssessment {
     /// Pause all liquidations (admin only)
     pub fn pause_liquidations(env: Env) -> Result<(), ContractError> {
         // Verify caller is admin
-        let admin: Address = env.storage()
+        let admin: Address = env
+            .storage()
             .instance()
             .get(&symbol_short!("admin"))
             .ok_or(ContractError::Unauthorized)?;
@@ -895,13 +940,13 @@ impl RiskAssessment {
         admin.require_auth();
 
         // Set paused flag
-        env.storage().instance().set(&symbol_short!("paused"), &true);
+        env.storage()
+            .instance()
+            .set(&symbol_short!("paused"), &true);
 
         // Emit paused event
-        env.events().publish(
-            (EVT_PAUSED,),
-            (admin, env.ledger().timestamp()),
-        );
+        env.events()
+            .publish((EVT_PAUSED,), (admin, env.ledger().timestamp()));
 
         Ok(())
     }
@@ -909,7 +954,8 @@ impl RiskAssessment {
     /// Unpause liquidations (admin only)
     pub fn unpause_liquidations(env: Env) -> Result<(), ContractError> {
         // Verify caller is admin
-        let admin: Address = env.storage()
+        let admin: Address = env
+            .storage()
             .instance()
             .get(&symbol_short!("admin"))
             .ok_or(ContractError::Unauthorized)?;
@@ -917,13 +963,13 @@ impl RiskAssessment {
         admin.require_auth();
 
         // Clear paused flag
-        env.storage().instance().set(&symbol_short!("paused"), &false);
+        env.storage()
+            .instance()
+            .set(&symbol_short!("paused"), &false);
 
         // Emit unpaused event
-        env.events().publish(
-            (EVT_UNPAUSED,),
-            (admin, env.ledger().timestamp()),
-        );
+        env.events()
+            .publish((EVT_UNPAUSED,), (admin, env.ledger().timestamp()));
 
         Ok(())
     }
@@ -942,53 +988,65 @@ impl RiskAssessment {
 
     /// Set collateral registry address (admin only)
     pub fn set_collateral_registry(env: Env, address: Address) -> Result<(), ContractError> {
-        let admin: Address = env.storage()
+        let admin: Address = env
+            .storage()
             .instance()
             .get(&symbol_short!("admin"))
             .ok_or(ContractError::Unauthorized)?;
 
         admin.require_auth();
 
-        env.storage().instance().set(&symbol_short!("coll_reg"), &address);
+        env.storage()
+            .instance()
+            .set(&symbol_short!("coll_reg"), &address);
         Ok(())
     }
 
     /// Set loan management address (admin only)
     pub fn set_loan_management(env: Env, address: Address) -> Result<(), ContractError> {
-        let admin: Address = env.storage()
+        let admin: Address = env
+            .storage()
             .instance()
             .get(&symbol_short!("admin"))
             .ok_or(ContractError::Unauthorized)?;
 
         admin.require_auth();
 
-        env.storage().instance().set(&symbol_short!("loan_mgr"), &address);
+        env.storage()
+            .instance()
+            .set(&symbol_short!("loan_mgr"), &address);
         Ok(())
     }
 
     /// Set vault address (admin only)
     pub fn set_vault(env: Env, address: Address) -> Result<(), ContractError> {
-        let admin: Address = env.storage()
+        let admin: Address = env
+            .storage()
             .instance()
             .get(&symbol_short!("admin"))
             .ok_or(ContractError::Unauthorized)?;
 
         admin.require_auth();
 
-        env.storage().instance().set(&symbol_short!("vault"), &address);
+        env.storage()
+            .instance()
+            .set(&symbol_short!("vault"), &address);
         Ok(())
     }
 
     /// Set timelock duration (admin only)
     pub fn set_timelock_duration(env: Env, duration: u64) -> Result<(), ContractError> {
-        let admin: Address = env.storage()
+        let admin: Address = env
+            .storage()
             .instance()
             .get(&symbol_short!("admin"))
             .ok_or(ContractError::Unauthorized)?;
 
         admin.require_auth();
 
-        env.storage().instance().set(&symbol_short!("timelock"), &duration);
+        env.storage()
+            .instance()
+            .set(&symbol_short!("timelock"), &duration);
         Ok(())
     }
 
@@ -1056,17 +1114,20 @@ impl RiskAssessment {
         let coll_key = (symbol_short!("test_coll"), position_id);
         let escrow_key = (symbol_short!("test_escr"), position_id);
 
-        let loan: Loan = env.storage()
+        let loan: Loan = env
+            .storage()
             .persistent()
             .get(&loan_key)
             .ok_or(ContractError::LoanNotFound)?;
 
-        let collateral: Collateral = env.storage()
+        let collateral: Collateral = env
+            .storage()
             .persistent()
             .get(&coll_key)
             .ok_or(ContractError::CollateralNotFound)?;
 
-        let escrow: TradeEscrow = env.storage()
+        let escrow: TradeEscrow = env
+            .storage()
             .persistent()
             .get(&escrow_key)
             .ok_or(ContractError::EscrowNotFound)?;
@@ -1105,17 +1166,17 @@ impl RiskAssessment {
     }
 
     /// Update auction configuration (governance only, with timelock)
-    pub fn set_auction_config(
-        env: Env,
-        config: AuctionConfig,
-    ) -> Result<(), ContractError> {
-        let governance: Address = env.storage()
+    pub fn set_auction_config(env: Env, config: AuctionConfig) -> Result<(), ContractError> {
+        let governance: Address = env
+            .storage()
             .instance()
             .get(&symbol_short!("gov"))
             .ok_or(ContractError::Unauthorized)?;
         governance.require_auth();
 
-        env.storage().instance().set(&symbol_short!("auc_cfg"), &config);
+        env.storage()
+            .instance()
+            .set(&symbol_short!("auc_cfg"), &config);
         Ok(())
     }
 
@@ -1128,12 +1189,10 @@ impl RiskAssessment {
     /// Anyone may trigger this once the loan is liquidatable. The starting price
     /// equals the full collateral value and decays linearly toward the debt floor
     /// over the configured auction duration.
-    pub fn start_auction(
-        env: Env,
-        loan_id: u64,
-    ) -> Result<AuctionState, ContractError> {
+    pub fn start_auction(env: Env, loan_id: u64) -> Result<AuctionState, ContractError> {
         // Guard: liquidations not paused
-        let paused: bool = env.storage()
+        let paused: bool = env
+            .storage()
             .instance()
             .get(&symbol_short!("paused"))
             .unwrap_or(false);
@@ -1163,17 +1222,21 @@ impl RiskAssessment {
         }
 
         // Compute debt floor (principal + interest)
-        let interest = loan.amount
+        let interest = loan
+            .amount
             .checked_mul(loan.interest_rate as i128)
             .ok_or(ContractError::MathOverflow)?
             / 10_000;
-        let debt_floor = loan.amount
+        let debt_floor = loan
+            .amount
             .checked_add(interest)
             .ok_or(ContractError::MathOverflow)?;
 
         let cfg = Self::get_auction_config(env.clone());
         let now = env.ledger().timestamp();
-        let ends_at = now.checked_add(cfg.duration).ok_or(ContractError::MathOverflow)?;
+        let ends_at = now
+            .checked_add(cfg.duration)
+            .ok_or(ContractError::MathOverflow)?;
 
         let state = AuctionState {
             loan_id,
@@ -1205,7 +1268,8 @@ impl RiskAssessment {
     /// Clamped at `debt_floor` so the lender is always fully repaid.
     pub fn get_auction_price(env: Env, loan_id: u64) -> Result<i128, ContractError> {
         let auc_key = (symbol_short!("auction"), loan_id);
-        let state: AuctionState = env.storage()
+        let state: AuctionState = env
+            .storage()
             .persistent()
             .get(&auc_key)
             .ok_or(ContractError::AuctionNotFound)?;
@@ -1235,7 +1299,11 @@ impl RiskAssessment {
 
         let price = price as i128;
         // Floor at debt_floor
-        Ok(if price < state.debt_floor { state.debt_floor } else { price })
+        Ok(if price < state.debt_floor {
+            state.debt_floor
+        } else {
+            price
+        })
     }
 
     /// Place a bid on an active Dutch Auction.
@@ -1253,7 +1321,8 @@ impl RiskAssessment {
         bidder.require_auth();
 
         // Guard: liquidations not paused
-        let paused: bool = env.storage()
+        let paused: bool = env
+            .storage()
             .instance()
             .get(&symbol_short!("paused"))
             .unwrap_or(false);
@@ -1262,7 +1331,8 @@ impl RiskAssessment {
         }
 
         let auc_key = (symbol_short!("auction"), loan_id);
-        let mut state: AuctionState = env.storage()
+        let mut state: AuctionState = env
+            .storage()
             .persistent()
             .get(&auc_key)
             .ok_or(ContractError::AuctionNotFound)?;
@@ -1300,16 +1370,12 @@ impl RiskAssessment {
 
         // Compute distribution
         let debt_covered = state.debt_floor; // lender gets exactly the debt
-        let gross_surplus = payment_amount
-            .checked_sub(debt_covered)
-            .unwrap_or(0);
-        let auction_fee = (gross_surplus as i128)
+        let gross_surplus = payment_amount.checked_sub(debt_covered).unwrap_or(0);
+        let auction_fee = gross_surplus
             .checked_mul(cfg.auction_fee_bps as i128)
             .ok_or(ContractError::MathOverflow)?
             / 10_000;
-        let borrower_surplus = gross_surplus
-            .checked_sub(auction_fee)
-            .unwrap_or(0);
+        let borrower_surplus = gross_surplus.checked_sub(auction_fee).unwrap_or(0);
 
         // Transfer: bidder → lender (debt covered)
         let token_client = token::Client::new(&env, &escrow.asset);
@@ -1330,10 +1396,8 @@ impl RiskAssessment {
 
         env.storage().persistent().set(&auc_key, &state);
 
-        env.events().publish(
-            (EVT_AUC_BID,),
-            (loan_id, bidder.clone(), payment_amount),
-        );
+        env.events()
+            .publish((EVT_AUC_BID,), (loan_id, bidder.clone(), payment_amount));
         env.events().publish(
             (EVT_AUC_SETL,),
             (loan_id, debt_covered, borrower_surplus, auction_fee),
@@ -1345,7 +1409,8 @@ impl RiskAssessment {
     /// Mark an expired auction as Expired so a new one can be started.
     pub fn expire_auction(env: Env, loan_id: u64) -> Result<(), ContractError> {
         let auc_key = (symbol_short!("auction"), loan_id);
-        let mut state: AuctionState = env.storage()
+        let mut state: AuctionState = env
+            .storage()
             .persistent()
             .get(&auc_key)
             .ok_or(ContractError::AuctionNotFound)?;
@@ -1391,7 +1456,14 @@ mod test {
         let loan_management = Address::generate(&env);
         let vault = Address::generate(&env);
 
-        (env, admin, governance, collateral_registry, loan_management, vault)
+        (
+            env,
+            admin,
+            governance,
+            collateral_registry,
+            loan_management,
+            vault,
+        )
     }
 
     fn create_test_loan(env: &Env, position_id: u64, amount: i128, interest_rate: u32) -> Loan {
@@ -1528,7 +1600,8 @@ mod test {
                 coll_reg.clone(),
                 loan_mgr.clone(),
                 vault.clone(),
-            ).unwrap();
+            )
+            .unwrap();
 
             let position_id = 1u64;
             // Collateral: $10,000, Debt: $5,000 (with 5% interest = $5,250)
@@ -1537,15 +1610,10 @@ mod test {
             let collateral = create_test_collateral(&env, position_id, 10000);
             let escrow = create_test_escrow(&env, 5000);
 
-            RiskAssessment::set_test_position(
-                env.clone(),
-                position_id,
-                loan,
-                collateral,
-                escrow,
-            );
+            RiskAssessment::set_test_position(env.clone(), position_id, loan, collateral, escrow);
 
-            let health_factor = RiskAssessment::calculate_health_factor(env.clone(), position_id).unwrap();
+            let health_factor =
+                RiskAssessment::calculate_health_factor(env.clone(), position_id).unwrap();
             assert!(health_factor >= 15000); // Should be healthy
 
             let risk = RiskAssessment::get_position_risk(env.clone(), position_id).unwrap();
@@ -1568,7 +1636,8 @@ mod test {
                 coll_reg.clone(),
                 loan_mgr.clone(),
                 vault.clone(),
-            ).unwrap();
+            )
+            .unwrap();
 
             let position_id = 1u64;
             // Face value: $10,000, but Realized value: $6,000
@@ -1579,15 +1648,10 @@ mod test {
             collateral.realized_value = 6000;
             let escrow = create_test_escrow(&env, 5000);
 
-            RiskAssessment::set_test_position(
-                env.clone(),
-                position_id,
-                loan,
-                collateral,
-                escrow,
-            );
+            RiskAssessment::set_test_position(env.clone(), position_id, loan, collateral, escrow);
 
-            let health_factor = RiskAssessment::calculate_health_factor(env.clone(), position_id).unwrap();
+            let health_factor =
+                RiskAssessment::calculate_health_factor(env.clone(), position_id).unwrap();
             assert!(health_factor < 10000); // Should be liquidatable due to low realized value
 
             let risk = RiskAssessment::get_position_risk(env.clone(), position_id).unwrap();
@@ -1610,7 +1674,8 @@ mod test {
                 coll_reg.clone(),
                 loan_mgr.clone(),
                 vault.clone(),
-            ).unwrap();
+            )
+            .unwrap();
 
             let position_id = 1u64;
             // Collateral: $10,000, Debt: $8,500 (with 5% interest = $8,925)
@@ -1619,15 +1684,10 @@ mod test {
             let collateral = create_test_collateral(&env, position_id, 10000);
             let escrow = create_test_escrow(&env, 8500);
 
-            RiskAssessment::set_test_position(
-                env.clone(),
-                position_id,
-                loan,
-                collateral,
-                escrow,
-            );
+            RiskAssessment::set_test_position(env.clone(), position_id, loan, collateral, escrow);
 
-            let health_factor = RiskAssessment::calculate_health_factor(env.clone(), position_id).unwrap();
+            let health_factor =
+                RiskAssessment::calculate_health_factor(env.clone(), position_id).unwrap();
             assert!(health_factor < 10000); // Should be liquidatable
 
             let risk = RiskAssessment::get_position_risk(env.clone(), position_id).unwrap();
@@ -1650,7 +1710,8 @@ mod test {
                 coll_reg.clone(),
                 loan_mgr.clone(),
                 vault.clone(),
-            ).unwrap();
+            )
+            .unwrap();
 
             let position_id = 1u64;
             // Collateral: $10,000, Debt: $6,000 (with 5% interest = $6,300)
@@ -1659,15 +1720,10 @@ mod test {
             let collateral = create_test_collateral(&env, position_id, 10000);
             let escrow = create_test_escrow(&env, 6000);
 
-            RiskAssessment::set_test_position(
-                env.clone(),
-                position_id,
-                loan,
-                collateral,
-                escrow,
-            );
+            RiskAssessment::set_test_position(env.clone(), position_id, loan, collateral, escrow);
 
-            let health_factor = RiskAssessment::calculate_health_factor(env.clone(), position_id).unwrap();
+            let health_factor =
+                RiskAssessment::calculate_health_factor(env.clone(), position_id).unwrap();
             assert!(health_factor >= 12000 && health_factor < 15000);
 
             let risk = RiskAssessment::get_position_risk(env.clone(), position_id).unwrap();
@@ -1690,7 +1746,8 @@ mod test {
                 coll_reg.clone(),
                 loan_mgr.clone(),
                 vault.clone(),
-            ).unwrap();
+            )
+            .unwrap();
 
             let position_id = 1u64;
             // Collateral: $10,000, Debt: $7,200 (with 5% interest = $7,560)
@@ -1699,15 +1756,10 @@ mod test {
             let collateral = create_test_collateral(&env, position_id, 10000);
             let escrow = create_test_escrow(&env, 7200);
 
-            RiskAssessment::set_test_position(
-                env.clone(),
-                position_id,
-                loan,
-                collateral,
-                escrow,
-            );
+            RiskAssessment::set_test_position(env.clone(), position_id, loan, collateral, escrow);
 
-            let health_factor = RiskAssessment::calculate_health_factor(env.clone(), position_id).unwrap();
+            let health_factor =
+                RiskAssessment::calculate_health_factor(env.clone(), position_id).unwrap();
             assert!(health_factor >= 10000 && health_factor < 12000);
 
             let risk = RiskAssessment::get_position_risk(env.clone(), position_id).unwrap();
@@ -1730,7 +1782,8 @@ mod test {
                 coll_reg.clone(),
                 loan_mgr.clone(),
                 vault.clone(),
-            ).unwrap();
+            )
+            .unwrap();
 
             let position_id = 1u64;
             // Liquidatable position
@@ -1738,13 +1791,7 @@ mod test {
             let collateral = create_test_collateral(&env, position_id, 10000);
             let escrow = create_test_escrow(&env, 8500);
 
-            RiskAssessment::set_test_position(
-                env.clone(),
-                position_id,
-                loan,
-                collateral,
-                escrow,
-            );
+            RiskAssessment::set_test_position(env.clone(), position_id, loan, collateral, escrow);
 
             let is_liq = RiskAssessment::is_liquidatable(env.clone(), position_id).unwrap();
             assert!(is_liq);
@@ -1766,7 +1813,8 @@ mod test {
                 coll_reg.clone(),
                 loan_mgr.clone(),
                 vault.clone(),
-            ).unwrap();
+            )
+            .unwrap();
 
             let position_id = 1u64;
             // Healthy position
@@ -1774,13 +1822,7 @@ mod test {
             let collateral = create_test_collateral(&env, position_id, 10000);
             let escrow = create_test_escrow(&env, 5000);
 
-            RiskAssessment::set_test_position(
-                env.clone(),
-                position_id,
-                loan,
-                collateral,
-                escrow,
-            );
+            RiskAssessment::set_test_position(env.clone(), position_id, loan, collateral, escrow);
 
             let is_liq = RiskAssessment::is_liquidatable(env.clone(), position_id).unwrap();
             assert!(!is_liq);
@@ -1802,7 +1844,8 @@ mod test {
                 coll_reg.clone(),
                 loan_mgr.clone(),
                 vault.clone(),
-            ).unwrap();
+            )
+            .unwrap();
 
             let position_id = 1u64;
             let loan = create_test_loan(&env, position_id, 5000, 500);
@@ -1845,7 +1888,8 @@ mod test {
                 coll_reg.clone(),
                 loan_mgr.clone(),
                 vault.clone(),
-            ).unwrap();
+            )
+            .unwrap();
 
             // Propose new parameters
             let new_params = RiskParameters {
@@ -1882,7 +1926,8 @@ mod test {
                 coll_reg.clone(),
                 loan_mgr.clone(),
                 vault.clone(),
-            ).unwrap();
+            )
+            .unwrap();
 
             // Propose new parameters
             let new_params = RiskParameters {
@@ -1930,7 +1975,8 @@ mod test {
                 coll_reg.clone(),
                 loan_mgr.clone(),
                 vault.clone(),
-            ).unwrap();
+            )
+            .unwrap();
         });
 
         // Propose new parameters (separate block to avoid auth conflict)
@@ -1976,7 +2022,8 @@ mod test {
                 coll_reg.clone(),
                 loan_mgr.clone(),
                 vault.clone(),
-            ).unwrap();
+            )
+            .unwrap();
 
             // Invalid threshold (too low)
             let invalid_params = RiskParameters {
@@ -2012,7 +2059,8 @@ mod test {
                 coll_reg.clone(),
                 loan_mgr.clone(),
                 vault.clone(),
-            ).unwrap();
+            )
+            .unwrap();
 
             // Initially not paused
             assert!(!RiskAssessment::is_paused(env.clone()));
@@ -2042,7 +2090,8 @@ mod test {
                 coll_reg.clone(),
                 loan_mgr.clone(),
                 vault.clone(),
-            ).unwrap();
+            )
+            .unwrap();
         });
 
         // Pause (separate block)
@@ -2079,7 +2128,8 @@ mod test {
                 coll_reg.clone(),
                 loan_mgr.clone(),
                 vault.clone(),
-            ).unwrap();
+            )
+            .unwrap();
         });
 
         // Set collateral registry (separate block)
@@ -2119,7 +2169,8 @@ mod test {
                 coll_reg.clone(),
                 loan_mgr.clone(),
                 vault.clone(),
-            ).unwrap();
+            )
+            .unwrap();
 
             let result = RiskAssessment::set_timelock_duration(env.clone(), 172800); // 48 hours
             assert!(result.is_ok());
@@ -2145,7 +2196,8 @@ mod test {
                 coll_reg.clone(),
                 loan_mgr.clone(),
                 vault.clone(),
-            ).unwrap();
+            )
+            .unwrap();
 
             let position_id = 1u64;
             let mut loan = create_test_loan(&env, position_id, 5000, 500);
@@ -2153,13 +2205,7 @@ mod test {
             let collateral = create_test_collateral(&env, position_id, 10000);
             let escrow = create_test_escrow(&env, 5000);
 
-            RiskAssessment::set_test_position(
-                env.clone(),
-                position_id,
-                loan,
-                collateral,
-                escrow,
-            );
+            RiskAssessment::set_test_position(env.clone(), position_id, loan, collateral, escrow);
 
             let result = RiskAssessment::calculate_health_factor(env.clone(), position_id);
             assert_eq!(result, Err(ContractError::LoanNotActive));
@@ -2181,7 +2227,8 @@ mod test {
                 coll_reg.clone(),
                 loan_mgr.clone(),
                 vault.clone(),
-            ).unwrap();
+            )
+            .unwrap();
 
             // Try to get health factor for non-existent position
             let result = RiskAssessment::calculate_health_factor(env.clone(), 999);
@@ -2204,7 +2251,8 @@ mod test {
                 coll_reg.clone(),
                 loan_mgr.clone(),
                 vault.clone(),
-            ).unwrap();
+            )
+            .unwrap();
 
             // Try to execute without pending update
             let result = RiskAssessment::execute_parameter_update(env.clone());
@@ -2227,9 +2275,14 @@ mod test {
 
         env.as_contract(&contract_id, || {
             RiskAssessment::initialize(
-                env.clone(), admin.clone(), governance.clone(),
-                coll_reg.clone(), loan_mgr.clone(), vault.clone(),
-            ).unwrap();
+                env.clone(),
+                admin.clone(),
+                governance.clone(),
+                coll_reg.clone(),
+                loan_mgr.clone(),
+                vault.clone(),
+            )
+            .unwrap();
 
             // Undercollateralised position
             let loan_id = 42u64;
@@ -2253,9 +2306,14 @@ mod test {
 
         env.as_contract(&contract_id, || {
             RiskAssessment::initialize(
-                env.clone(), admin.clone(), governance.clone(),
-                coll_reg.clone(), loan_mgr.clone(), vault.clone(),
-            ).unwrap();
+                env.clone(),
+                admin.clone(),
+                governance.clone(),
+                coll_reg.clone(),
+                loan_mgr.clone(),
+                vault.clone(),
+            )
+            .unwrap();
 
             let loan_id = 1u64;
             let loan = create_test_loan(&env, loan_id, 5_000, 500);
@@ -2264,7 +2322,7 @@ mod test {
             RiskAssessment::set_test_position(env.clone(), loan_id, loan, collateral, escrow);
 
             let result = RiskAssessment::start_auction(env.clone(), loan_id);
-            assert_eq!(result, Err(ContractError::PositionNotLiquidatable));
+            assert!(matches!(result, Err(ContractError::PositionNotLiquidatable)));
         });
     }
 
@@ -2276,9 +2334,14 @@ mod test {
 
         env.as_contract(&contract_id, || {
             RiskAssessment::initialize(
-                env.clone(), admin.clone(), governance.clone(),
-                coll_reg.clone(), loan_mgr.clone(), vault.clone(),
-            ).unwrap();
+                env.clone(),
+                admin.clone(),
+                governance.clone(),
+                coll_reg.clone(),
+                loan_mgr.clone(),
+                vault.clone(),
+            )
+            .unwrap();
 
             let loan_id = 42u64;
             let loan = create_test_loan(&env, loan_id, 8_500, 500);
@@ -2288,7 +2351,7 @@ mod test {
 
             RiskAssessment::start_auction(env.clone(), loan_id).unwrap();
             let result = RiskAssessment::start_auction(env.clone(), loan_id);
-            assert_eq!(result, Err(ContractError::AuctionAlreadyActive));
+            assert!(matches!(result, Err(ContractError::AuctionAlreadyActive)));
         });
     }
 
@@ -2300,9 +2363,14 @@ mod test {
 
         env.as_contract(&contract_id, || {
             RiskAssessment::initialize(
-                env.clone(), admin.clone(), governance.clone(),
-                coll_reg.clone(), loan_mgr.clone(), vault.clone(),
-            ).unwrap();
+                env.clone(),
+                admin.clone(),
+                governance.clone(),
+                coll_reg.clone(),
+                loan_mgr.clone(),
+                vault.clone(),
+            )
+            .unwrap();
 
             let loan_id = 42u64;
             let loan = create_test_loan(&env, loan_id, 8_500, 500);
@@ -2317,12 +2385,14 @@ mod test {
             assert_eq!(price_start, 10_000);
 
             // Advance 3 hours → price should be lower
-            env.ledger().set_timestamp(env.ledger().timestamp() + 10_800);
+            env.ledger()
+                .set_timestamp(env.ledger().timestamp() + 10_800);
             let price_mid = RiskAssessment::get_auction_price(env.clone(), loan_id).unwrap();
             assert!(price_mid < price_start);
 
             // Advance past auction end → price == debt_floor
-            env.ledger().set_timestamp(env.ledger().timestamp() + 100_000);
+            env.ledger()
+                .set_timestamp(env.ledger().timestamp() + 100_000);
             let price_end = RiskAssessment::get_auction_price(env.clone(), loan_id).unwrap();
             let state = RiskAssessment::get_auction(env.clone(), loan_id).unwrap();
             assert_eq!(price_end, state.debt_floor);
@@ -2337,9 +2407,14 @@ mod test {
 
         env.as_contract(&contract_id, || {
             RiskAssessment::initialize(
-                env.clone(), admin.clone(), governance.clone(),
-                coll_reg.clone(), loan_mgr.clone(), vault.clone(),
-            ).unwrap();
+                env.clone(),
+                admin.clone(),
+                governance.clone(),
+                coll_reg.clone(),
+                loan_mgr.clone(),
+                vault.clone(),
+            )
+            .unwrap();
 
             let cfg = RiskAssessment::get_auction_config(env.clone());
             assert_eq!(cfg.duration, 21_600);
@@ -2355,9 +2430,14 @@ mod test {
 
         env.as_contract(&contract_id, || {
             RiskAssessment::initialize(
-                env.clone(), admin.clone(), governance.clone(),
-                coll_reg.clone(), loan_mgr.clone(), vault.clone(),
-            ).unwrap();
+                env.clone(),
+                admin.clone(),
+                governance.clone(),
+                coll_reg.clone(),
+                loan_mgr.clone(),
+                vault.clone(),
+            )
+            .unwrap();
 
             let new_cfg = AuctionConfig {
                 duration: 43_200,
@@ -2380,9 +2460,14 @@ mod test {
 
         env.as_contract(&contract_id, || {
             RiskAssessment::initialize(
-                env.clone(), admin.clone(), governance.clone(),
-                coll_reg.clone(), loan_mgr.clone(), vault.clone(),
-            ).unwrap();
+                env.clone(),
+                admin.clone(),
+                governance.clone(),
+                coll_reg.clone(),
+                loan_mgr.clone(),
+                vault.clone(),
+            )
+            .unwrap();
 
             let loan_id = 42u64;
             let loan = create_test_loan(&env, loan_id, 8_500, 500);
@@ -2397,7 +2482,8 @@ mod test {
             assert_eq!(err, Err(ContractError::AuctionNotExpired));
 
             // Advance past end
-            env.ledger().set_timestamp(env.ledger().timestamp() + 100_000);
+            env.ledger()
+                .set_timestamp(env.ledger().timestamp() + 100_000);
             RiskAssessment::expire_auction(env.clone(), loan_id).unwrap();
 
             let state = RiskAssessment::get_auction(env.clone(), loan_id).unwrap();

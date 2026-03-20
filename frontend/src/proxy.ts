@@ -10,7 +10,7 @@ export async function proxy(request: NextRequest) {
     const refreshToken = request.cookies.get('refreshToken')?.value;
 
     let isValid = false;
-    let response = NextResponse.next();
+    const response = NextResponse.next();
 
     if (accessToken) {
         const payload = await verifyToken(accessToken);
