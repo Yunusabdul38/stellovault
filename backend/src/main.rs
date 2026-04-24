@@ -130,6 +130,9 @@ async fn main() {
         db_pool.clone(),
     ));
 
+    // Initialize KYC service
+    let kyc_service = stellovault_server::services::KycService::new(db_pool.clone());
+
     // Create shared app state
     let app_state = AppState::new(
         escrow_service.clone(),
@@ -138,6 +141,7 @@ async fn main() {
         auth_service.clone(),
         risk_engine.clone(),
         oracle_service.clone(),
+        kyc_service,
         ws_state.clone(),
         config.webhook_secret.clone(),
     );

@@ -200,10 +200,10 @@ impl EventHandler {
                     .await?;
 
                     if let Some(ws) = &self.ws_state {
-                        ws.broadcast_event(WsEscrowEvent::Disputed {
+                        ws.broadcast_event(WsEvent::Escrow(WsEscrowEvent::Disputed {
                             escrow_id: id as i64,
-                            reason: "on-chain dispute raised".to_string(),
-                        })
+                            dispute_reason: "on-chain dispute raised".to_string(),
+                        }))
                         .await;
                     }
                 }
@@ -233,8 +233,14 @@ impl EventHandler {
 
                     if let Some(ws) = &self.ws_state {
                         match decision_raw {
-                            0 => ws.broadcast_event(WsEscrowEvent::Released { escrow_id: id as i64 }).await,
-                            1 => ws.broadcast_event(WsEscrowEvent::Refunded { escrow_id: id as i64 }).await,
+                            0 => ws.broadcast_event(WsEvent::Escrow(WsEscrowEvent::Released { 
+                                escrow_id: id as i64,
+                                released_by: "dispute_resolution".to_string(),
+                            })).await,
+                            1 => ws.broadcast_event(WsEvent::Escrow(WsEscrowEvent::Cancelled { 
+                                escrow_id: id as i64,
+                                reason: "refunded_by_dispute".to_string(),
+                            })).await,
                             _ => {}
                         }
                     }
